@@ -10,7 +10,6 @@ class MovementDelta {
 
 	left(rotation) {
 		let direction;
-		console.log("ROT: " + rotation)
 
 		if (rotation == 0 || rotation == this.RADIANS._180)
 			direction = {x: -1, z: 0};
@@ -29,7 +28,6 @@ class MovementDelta {
 
 	right(rotation) {
 		let direction;
-		console.log("ROT: " + rotation)
 
 		if (rotation == 0 || rotation == this.RADIANS._180)
 			direction = {x: 1, z: 0};
@@ -48,8 +46,7 @@ class MovementDelta {
 
 	forward(rotation) {
 		let direction;
-		console.log("ROT: " + rotation)
-
+		
 		if (rotation == 0 || rotation == this.RADIANS._180)
 			direction = {x: 0, z: -1};
 		else if (rotation == this.RADIANS._90 || rotation == this.RADIANS._270)
@@ -67,7 +64,6 @@ class MovementDelta {
 
 	backward(rotation) {
 		let direction;
-		console.log("ROT: " + rotation)
 
 		if (rotation == 0 || rotation == this.RADIANS._180)
 			direction = {x: 0, z: 1};
@@ -83,6 +79,20 @@ class MovementDelta {
 
 		return delta;
 	}
+
+	zoomIn(position, rotation) {
+		let delta = this.forward(rotation);
+		delta.y = -1;
+
+		return delta;
+	}
+
+	zoomOut(position, rotation) {
+		let delta = this.backward(rotation);
+		delta.y = 1;
+
+		return delta;
+	}
 }
 
 (() => {
@@ -92,39 +102,51 @@ class MovementDelta {
 			let el = this.el;
 			let deltas = new MovementDelta();
 	
-			document.addEventListener('keydown', function (event) {
+			document.addEventListener('keydown', function(event) {
 				let currentPos = el.object3D.position;
 				let currentRot = el.object3D.rotation;
 				if (event.keyCode == 37)
 				{
-					let delta = deltas.left(currentRot.y)
-					console.log(delta)
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z)
+					let delta = deltas.left(currentRot.y);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
 				}
 				else if (event.keyCode == 39)
 				{
-					let delta = deltas.right(currentRot.y)
-					console.log(delta)
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z)
+					let delta = deltas.right(currentRot.y);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
 				}
 				else if (event.keyCode == 38)
 				{
-					let delta = deltas.forward(currentRot.y)
-					console.log(delta)
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z)
+					let delta = deltas.forward(currentRot.y);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
 				}
 				else if (event.keyCode == 40)
 				{
-					let delta = deltas.backward(currentRot.y)
-					console.log(delta)
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z)
+					let delta = deltas.backward(currentRot.y);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
 				}
-				
-				console.log(event.keyCode)
+				else if (event.keyCode == 188)
+				{
+					el.object3D.rotation.set(currentRot.x, currentRot.y + Math.PI / 24, currentRot.z);
+				}
+				else if (event.keyCode = 190)
+				{
+					el.object3D.rotation.set(currentRot.x, currentRot.y - Math.PI / 24, currentRot.z);
+				}
 			});
-	
-			el.addEventListener('mouseleave', function () {
-				el.setAttribute('color', defaultColor);
+			document.addEventListener("wheel", function(event) {
+				let currentPos = el.object3D.position;
+				let currentRot = el.object3D.rotation;
+				if (event.deltaY > 0)
+				{
+					let delta = deltas.zoomOut(currentPos, currentRot.y);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y + delta.y, currentPos.z + delta.z);
+				}
+				else
+				{
+					let delta = deltas.zoomIn(currentPos, currentRot.y);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y + delta.y, currentPos.z + delta.z);
+				}
 			});
 		}
 	  });
