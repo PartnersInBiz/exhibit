@@ -2,17 +2,34 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
+		
 		<script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+		<script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
+		<script src="globals.js"></script>
+		<script src="grid-interactive.js"></script>
+		<script src="navigation.js"></script>
 	</head>
 	<body>
-		<a-scene>
-			<a-entity camera position="0 5 3" rotation="-45 0 0" spectator="true" id="camera"></a-entity>
+		<a-scene cursor="rayOrigin: mouse">
+			<a-assets>
+				<img id="grid-space" src="grid.png">
+			</a-assets>
+
+			<a-entity camera mouse-cursor navigation position="0 5 3" rotation="-45 45 0" spectator="true" id="camera" far="20000">
+				<a-animation id="moveLeft" begin="moveLeft" attribute="position" from="" to=""></a-animation>
+			</a-entity>
+
 			<a-entity id="grid" rotation="-90 0 0">
 			</a-entity>
+			<a-box position="36 0 -32" scale="5 .5 .5" material="color: red"></a-box>
+			<a-box position="36 0 -32" scale=".5 5 .5" material="color: green"></a-box>
+			<a-box position="36 0 -32" scale=".5 .5 5" material="color: blue"></a-box>
+
 			<a-sky color="#ECECEC"></a-sky>
 		</a-scene>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		
 		<script src="grid.js"></script>
 	</body>
 </html>
