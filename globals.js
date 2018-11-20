@@ -1,4 +1,7 @@
 const SIZE = 64;
+const HALFWIDTH = screen.width / 2;
+const HALFHEIGHT = window.innerHeight / 2;
+const DRAGSCALE = 1.2;
 
 function parametize(assoc)
 {
