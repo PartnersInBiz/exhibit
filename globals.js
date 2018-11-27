@@ -1,7 +1,8 @@
-const SIZE = 64;
+const SIZE = 16;
 const HALFWIDTH = screen.width / 2;
 const HALFHEIGHT = window.innerHeight / 2;
 const DRAGSCALE = 1.2;
+const PAN_SENSITIVITY = 75;
 
 function parametize(assoc)
 {

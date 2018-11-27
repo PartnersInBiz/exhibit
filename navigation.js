@@ -153,8 +153,44 @@ class MovementDelta {
 				let currentPos = el.object3D.position;
 				let currentRot = el.object3D.rotation;
 
+				// if middle button
+				if (event.button == 1)
+				{
+					let mouseRotation =  function(e){
+						let percentageX, percentageY;
+
+						// rotation on Y axis
+						if (e.pageX < HALFWIDTH)
+							percentageX = Math.round(-100 * (HALFWIDTH - e.pageX) / HALFWIDTH) / 100;
+						else
+							percentageX = Math.round(100 * (e.pageX - HALFWIDTH) / HALFWIDTH) / 100;
+
+						// *****
+						// rotation on X/Z axes -- MATH PROBLEM
+						if (e.pageY < HALFHEIGHT)
+							percentageY = Math.round(-100 * (HALFHEIGHT - e.pageY) / HALFHEIGHT) / 100;
+						else
+							percentageY = Math.round(-100 * (HALFHEIGHT - e.pageY) / HALFHEIGHT) / 100;
+
+						let delta;
+						if (percentageX < 0)
+							el.object3D.rotation.set(currentRot.x, currentRot.y - Math.PI / 24, currentRot.z);
+						else
+							el.object3D.rotation.set(currentRot.x, currentRot.y + Math.PI / 24, currentRot.z);
+
+						// *****
+
+						document.getElementById("scene").style.cursor = 'all-scroll';
+					};
+					document.addEventListener("mousemove", mouseRotation);
+					document.addEventListener("mouseup", function(e){
+						e.preventDefault();
+						document.removeEventListener("mousemove", mouseRotation);
+						document.getElementById("scene").style.cursor = 'default';
+					}, true);
+				}
 				// if a right-click/drag
-				if (event.button == 2)
+				else if (event.button == 2)
 				{
 					let rightDragMovement =  function(e){
 						let percentageX, percentageY;
@@ -171,7 +207,7 @@ class MovementDelta {
 //						else
 //							percentageY = Math.round(-100 * (HALFHEIGHT - e.pageY) / HALFHEIGHT) / 100;
 						
-						console.log(percentageX, " ", percentageY)
+						//console.log(percentageX, " ", percentageY)
 
 						let delta;
 
@@ -203,6 +239,32 @@ class MovementDelta {
 					}, true);
 				}
 			});
+
+			/*document.addEventListener("mousemove", function(e){
+				let currentPos = el.object3D.position;
+				let currentRot = el.object3D.rotation;
+
+				if (e.pageY < PAN_SENSITIVITY)
+				{
+					let delta = deltas.forward(currentRot.y, DRAGSCALE);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
+				}
+				else if (e.pageY > window.innerHeight - PAN_SENSITIVITY)
+				{
+					let delta = deltas.backward(currentRot.y, DRAGSCALE);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
+				}
+				else if (e.pageX < PAN_SENSITIVITY)
+				{
+					let delta = deltas.left(currentRot.y, DRAGSCALE);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
+				}
+				else if (e.pageX > screen.width - PAN_SENSITIVITY)
+				{
+					let delta = deltas.right(currentRot.y, DRAGSCALE);
+					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
+				}
+			});*/
 
 			document.addEventListener("contextmenu", e => e.preventDefault());
 		}
