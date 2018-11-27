@@ -1,0 +1,44 @@
+{% set title = 'Register' %}
+{% extends '_layout.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="col">
+		<div class="container w-50">
+			<h2>Register</h2>
+			<form name="register" action="/register" method="POST">
+				<div class="form-row">
+					<div class="col form-group">
+						<label for="first_name">First name*</label>
+						<input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name">
+					</div>
+					<div class="col form-group">
+						<label for="last_name">Last name*</label>
+						<input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name">
+					</div>
+					<div class="col form-group">
+						<label for="display_name">Display name</label>
+						<input type="text" class="form-control" name="display_name" id="display_name" placeholder="Display name">
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col form-group">
+						<label for="email">Email*</label>
+						<input type="text" class="form-control" name="email" id="email" placeholder="Email">
+					</div>
+					<div class="col form-group">
+						<label for="password">Password*</label>
+						<input type="password" class="form-control" name="password" id="password" placeholder="Password">
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col form-group text-right">
+						<button type="submit" class="btn btn-primary">Register</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
