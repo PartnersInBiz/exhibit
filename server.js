@@ -13,5 +13,17 @@ module.exports = {
 		{
 			res.status(400).send(error);
 		}
+	},
+	getUserExhibits: function(con, mysql, user_id, callback){
+		let sql = "SELECT * FROM exhibits WHERE owner_id=?";
+		let inserts = [user_id];
+		sql = mysql.format(sql, inserts);
+
+		con.query(sql, function (error, result) {
+			if (error)
+				throw error;
+			
+			callback(result);
+		});
 	}
 };

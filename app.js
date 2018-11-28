@@ -2,9 +2,10 @@ const express = require("express");
 const session = require("express-session");
 const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
-const common = require("./common");
 const mysql = require("mysql");
 const bcrypt = require("bcrypt");
+const shortid = require("shortid");
+const common = require("./common");
 const secure = require("./secure/secure");
 const server = require("./server");
 
@@ -52,7 +53,14 @@ app.get("/error/:error", function(req, res){
 
 // Render the splash homepage, should always be GET
 app.get("/", function(req, res){
-	return res.render("index.html", {session: req.session});
+	if (typeof req.session.user == "undefined")
+		return res.render("index.html", {session: req.session});
+	else
+	{
+		server.getUserExhibits(con, mysql, req.session.user.id, function(exhibits){
+			return res.render("dashboard.html", {session: req.session, exhibits: exhibits});
+		});
+	}
 });
 
 // GET to /login
@@ -167,6 +175,20 @@ let register = function(req, res){
 	}
 }
 app.post("/register", register);
+
+let new_exhibit = function(req, res){
+	let sql = "INSERT INTO exhibits (gen_id, owner_id) VALUES (?, ?)";
+	let inserts = [shortid.generate(), req.session.user.id];
+	sql = mysql.format(sql, inserts);
+
+	con.query(sql, function (error, result) {
+		if (error)
+			throw error;
+
+		res.redirect("/edit/" + inserts[0]);
+	});
+};
+app.get("/new", new_exhibit);
 
 
 // Listen on port 3000
