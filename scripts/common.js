@@ -86,23 +86,35 @@ String.prototype.validatePassword = function() {
 	return true;
 };
 
-module.exports = {
-	validateForm: function(body, required) {
-		for (require of required)
+let validateForm = function(body, required) {
+	for (require of required)
+	{
+		if (body.hasOwnProperty(require))
 		{
-			if (body.hasOwnProperty(require))
-			{
-				if (body[require].removeSpaces() == '')
-					return false;
-				else if (require == "email" && !body[require].validateEmail())
-					return false;
-				else if (require == "password" && !body[require].validatePassword())
-					return false;
-			}
-			else
+			if (body[require].removeSpaces() == '')
+				return false;
+			else if (require == "email" && !body[require].validateEmail())
+				return false;
+			else if (require == "password" && !body[require].validatePassword())
 				return false;
 		}
-		
-		return true;
+		else
+			return false;
 	}
+	
+	return true;
+};
+
+// Code from https://stackoverflow.com/questions/13644303/how-to-check-if-js-code-is-running-on-node-server-or-on-the-client
+function is_server() {
+	return ! (typeof window != 'undefined' && window.document);
 }
+
+(() => {
+	if (is_server())
+	{
+		module.exports = {
+			validateForm: validateForm
+		}
+	}
+})();

@@ -6,6 +6,7 @@
 	<div class="col">
 		<div class="container w-50">
 			<h2>Log In</h2>
+			<div class="alert alert-warning d-none" role="alert"></div>
 			<form name="login" action="/login" method="POST">
 				<div class="form-row">
 					<div class="col form-group">
@@ -26,5 +27,10 @@
 		</div>
 	</div>
 </div>
+{% endblock %}
 
+{% block scripts%}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/client/common.js"></script>
+<script src="/client/authentication.js"></script>
 {% endblock %}

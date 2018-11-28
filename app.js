@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const bcrypt = require("bcrypt");
 const shortid = require("shortid");
-const common = require("./common");
+const common = require("./scripts/common");
 const secure = require("./secure/secure");
 const server = require("./server");
 
@@ -46,6 +46,23 @@ let login_required = function(req, res, next) {
 		return next();
 }
 
+// Render client-side scripts
+app.get("/client/:script", function(req, res){
+	let options = {
+		root: __dirname + "/scripts/",
+		dotfiles: "deny",
+		headers: {
+			"x-timestamp": Date.now(),
+			"x-sent": true
+		}
+	};
+
+	res.sendFile(req.params.script, options, function(error){
+		if (error)
+			server.handleError(req, res, "NO_SEND_SCRIPT");
+	});
+});
+
 // Render error page
 app.get("/error/:error", function(req, res){
 	return res.render("error.html", {session: req.session, error: server.errors[req.params.error]});
@@ -65,7 +82,10 @@ app.get("/", function(req, res){
 
 // GET to /login
 app.get("/login", function(req, res){
-	return res.render("login.html");
+	if (typeof req.session.user == "undefined")
+		return res.render("login.html");
+	else
+		return res.redirect("/");
 });
 
 // POST to /login
@@ -74,41 +94,43 @@ let login = function(req, res){
 	const required = ["email", "password"];
 	if (common.validateForm(req.body, required))
 	{
-	let sql = "SELECT * FROM users WHERE email=?";
-	let inserts = [req.body.email];
-	sql = mysql.format(sql, inserts);
+		let sql = "SELECT * FROM users WHERE email=?";
+		let inserts = [req.body.email];
+		sql = mysql.format(sql, inserts);
 
-	con.query(sql, function (error, result, fields) {
-		if (error)
-			throw error;
-
-		// Row exists, now check password
-		if (result.length > 0)
-		{
-			bcrypt.compare(req.body.password, result[0]['password'], function(err, resolved){
-				if (resolved)
-				{
-					req.session.user = {
-						id: result[0]['id'],
-						first_name: result[0]['first_name'],
-						last_name: result[0]['last_name'],
-						display_name: result[0]['display_name'],
-						status: result[0]['status']
-					};
-					res.redirect("/");
-				}
-				else
-					server.handleError(req, res, "LOGIN_FAILED");
-			});
-		}
-		else
-		{
-			server.handleError(req, res, "LOGIN_FAILED");
-		}
-	});
-}
-else
-	server.handleError(req, res, "LOGIN_FAILED");
+		con.query(sql, function (error, result, fields) {
+			if (error)
+			{
+				throw error;
+				server.handleError(req, res, "LOGIN_FAILED");
+			}
+			else if (result.length > 0)
+			{
+				// Row exists, now check password
+				bcrypt.compare(req.body.password, result[0]['password'], function(err, resolved){
+					if (resolved)
+					{
+						req.session.user = {
+							id: result[0]['id'],
+							first_name: result[0]['first_name'],
+							last_name: result[0]['last_name'],
+							display_name: result[0]['display_name'],
+							status: result[0]['status']
+						};
+						server.handleSuccess(req, res, "/");
+					}
+					else
+						server.handleError(req, res, "LOGIN_FAILED");
+				});
+			}
+			else
+			{
+				server.handleError(req, res, "LOGIN_FAILED");
+			}
+		});
+	}
+	else
+		server.handleError(req, res, "LOGIN_FAILED");
 };
 app.post("/login", login);
 
@@ -138,10 +160,12 @@ let register = function(req, res){
 		
 		con.query(sql, function (error, result, fields) {
 			if (error)
+			{
+				server.handleError(req, res, "REGISTRATION_FAILED");
 				throw error;
-
+			}
 			// Alert user if email taken
-			if (result.length > 0)
+			else if (result.length > 0)
 			{
 				server.handleError(req, res, "EMAIL_TAKEN");
 			}
@@ -161,8 +185,10 @@ let register = function(req, res){
 
 					con.query(sql, function (error, result) {
 						if (error)
+						{
+							server.handleError(req, res, "REGISTRATION_FAILED");
 							throw error;
-	
+						}
 						login(req, res);
 					});
 				});
