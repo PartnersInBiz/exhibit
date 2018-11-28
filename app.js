@@ -6,6 +6,7 @@ const common = require("./common");
 const mysql = require("mysql");
 const bcrypt = require("bcrypt");
 const secure = require("./secure/secure");
+const server = require("./server");
 
 const SALT = 10;
 
@@ -35,6 +36,20 @@ con.connect(function(error){
 	console.log("Connected to database.");
 });
 
+// Check user authentication
+let login_required = function(req, res, next) {
+	// If the user is not logged in, make them login
+	if (typeof req.session.user == "undefined")
+		res.redirect("/login");
+	else
+		return next();
+}
+
+// Render error page
+app.get("/error/:error", function(req, res){
+	return res.render("error.html", {session: req.session, error: server.errors[req.params.error]});
+});
+
 // Render the splash homepage, should always be GET
 app.get("/", function(req, res){
 	return res.render("index.html", {session: req.session});
@@ -47,6 +62,10 @@ app.get("/login", function(req, res){
 
 // POST to /login
 let login = function(req, res){
+	// Validate input
+	const required = ["email", "password"];
+	if (common.validateForm(req.body, required))
+	{
 	let sql = "SELECT * FROM users WHERE email=?";
 	let inserts = [req.body.email];
 	sql = mysql.format(sql, inserts);
@@ -71,15 +90,17 @@ let login = function(req, res){
 					res.redirect("/");
 				}
 				else
-					console.log("not match")
+					server.handleError(req, res, "LOGIN_FAILED");
 			});
 		}
 		else
 		{
-			console.log("User doesn't exist.");
+			server.handleError(req, res, "LOGIN_FAILED");
 		}
-		
 	});
+}
+else
+	server.handleError(req, res, "LOGIN_FAILED");
 };
 app.post("/login", login);
 
@@ -114,13 +135,10 @@ let register = function(req, res){
 			// Alert user if email taken
 			if (result.length > 0)
 			{
-				console.log("Email taken.")
-				return false;
+				server.handleError(req, res, "EMAIL_TAKEN");
 			}
 			else
 			{
-				console.log("Creating user.");
-
 				// Hash password
 				bcrypt.hash(req.body.password, SALT, function(error, hash){
 					let display_name = req.body.display_name;
@@ -145,7 +163,7 @@ let register = function(req, res){
 	}
 	else
 	{
-		res.render("index.html");
+		server.handleError(req, res, "FORM_INVALID");
 	}
 }
 app.post("/register", register);
