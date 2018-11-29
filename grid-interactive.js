@@ -35,11 +35,11 @@
 
 				if (Math.abs(Math.abs(x) - Math.abs(xp)) > Math.abs(Math.abs(z) - Math.abs(zp)))
 				{
-					$("a-scene").append('<a-box color="blue" position="' + xpp + ' 0 ' + (zpp - .5) + '" scale="1 .1 1" rotation="90 0 0"></a-box>')
+					$("a-scene").append('<a-box color="blue" position="' + xpp + ' 0 ' + (zpp - .5) + '" scale="1 .1 1" rotation="90 90 0"></a-box>')
 				}
 				else
 				{
-					$("a-scene").append('<a-box color="green" position="' + (xpp - .5) + ' 0 ' + zpp + '" scale="1 .1 1" rotation="90 90 0"></a-box>')
+					$("a-scene").append('<a-box color="green" position="' + (xpp - .5) + ' 0 ' + zpp + '" scale="1 .1 1" rotation="90 0 0"></a-box>')
 				}
 
 

@@ -10,14 +10,18 @@ const secure = require("./secure/secure");
 const server = require("./server");
 
 const SALT = 10;
+const TEMPLATE_PATH = 'templates';
+const PORT = 3000;
 
 let app = express();
 
 // Configure sessions
-app.use(session(secure.session_settings));
+secure.secret(function(buffer){
+	secure.session_settings.secret = buffer;
+	app.use(session(secure.session_settings));
+});
 
 // Configure Nunjucks templating engine
-const TEMPLATE_PATH = 'templates';
 nunjucks.configure(TEMPLATE_PATH, {
 	autoescape: true,
 	express: app
@@ -29,7 +33,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // Configure database connection
 let con = mysql.createConnection(secure.db_settings);
-
 con.connect(function(error){
 	if (error)
 		throw error;
@@ -218,4 +221,6 @@ app.get("/new", new_exhibit);
 
 
 // Listen on port 3000
-app.listen(3000);
+app.listen(PORT);
+console.log("Now listening on port", PORT + ".");
+console.log("Hit CTRL-C to exit server application.");
