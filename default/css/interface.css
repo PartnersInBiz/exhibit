@@ -1,0 +1,32 @@
+.toolbar {
+	z-index: 10;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	background: #f3f3f3;
+	box-shadow: 0 -.1em .5em #d8d8d8;
+	width: 100%;
+}
+
+.navigation_controls table {
+	border-collapse: separate;
+	border-spacing: .2em;
+}
+
+.navigation_controls td {
+	width: 2.5em;
+	height: 2.5em;
+	background: #d8d8d8;
+	border-radius: .5em;
+	text-align: center;
+}
+
+.navigation_controls td.smaller {
+	width: 2em;
+	height: 2em;
+}
+
+.navigation_controls td:hover {
+	background: #c4c4c4;
+	cursor: pointer;
+}

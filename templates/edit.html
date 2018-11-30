@@ -1,0 +1,73 @@
+{% set title = 'Editor' %}
+{% extends '_layout.html' %}
+
+{% block scripts_head %}
+	<script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+	<script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
+	<script src="/client/graphics/globals.js"></script>
+	<script src="/client/shortid.js"></script>
+	<script src="/client/graphics/grid-interactive.js"></script>
+	<script src="/client/graphics/navigation.js"></script>
+{% endblock%}
+
+{% block content %}
+	<a-scene cursor="rayOrigin: mouse" id="scene">
+		<a-assets>
+			<img id="grid-space" src="/client/textures/grid.png">
+		</a-assets>
+
+		<a-entity camera mouse-cursor navigation position="0 5 3" rotation="-45 0 0" spectator="true" id="camera" far="20000">
+			<a-animation id="moveLeft" begin="moveLeft" attribute="position" from="" to=""></a-animation>
+		</a-entity>
+
+		<a-entity id="grid" rotation="-90 0 0">
+		</a-entity>
+		<a-box position="0 0 0" scale=".5 .5 .5" material="color: yellow"></a-box>
+		<a-box position="36 0 -32" scale="5 .5 .5" material="color: red"></a-box>
+		<a-box position="36 0 -32" scale=".5 5 .5" material="color: green"></a-box>
+		<a-box position="36 0 -32" scale=".5 .5 5" material="color: blue"></a-box>
+
+		<a-sky color="#ECECEC"></a-sky>
+	</a-scene>
+	<nav class="toolbar container-fluid">
+		<div class="row">
+			<div class="col-3 navigation_controls">
+				<table>
+					<tr>
+						<td id="short-walls-toggle" data-toggle="off"><span class="fas fa-map"></span></td>
+						<td><span class="fas fa-chevron-up"></span></td>
+						<td class="invisible"></td>
+					</tr>
+					<tr>
+						<td rowspan="2"><span class="fas fa-chevron-left"></span></td>
+						<td class="smaller">
+							<span class="fas fa-plus d-block"></span>
+						</td>
+						<td rowspan="2"><span class="fas fa-chevron-right"></span></td>
+					</tr>
+					<tr>
+						<td class="smaller"><span class="fas fa-minus"></span></td>
+					</tr>
+					<tr>
+						<td class=""><span class="fas fa-redo"></span></td>
+						<td><span class="fas fa-chevron-down"></span></td>
+						<td class=""><span class="fas fa-undo"></span></td>
+					</tr>
+				</table>
+			</div>
+			<div class="col-9">
+				<button class="btn btn-secondary" id="wall-toggle" data-toggle="off">Wall</button>
+				<button class="btn btn-secondary" id="floor-toggle" data-toggle="off">Floor</button>
+				<button class="btn btn-secondary" id="objects-toggle" data-toggle="off">Objects</button>
+				<button class="btn btn-secondary" id="media-toggle" data-toggle="off">Media</button>
+				<button class="btn btn-secondary" id="models-toggle" data-toggle="off">3D Models</button>
+			</div>
+		</div>
+	</nav>
+{% endblock %}
+
+{% block scripts %}
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="/client/graphics/grid.js"></script>
+	<script src="/client/toolbar.js"></script>
+{% endblock %}
