@@ -1,0 +1,30 @@
+{
+  "name": "exhibit",
+  "version": "1.0.0",
+  "description": "A web app to aid in the creation of interactive online three-dimensional museum exhibits.",
+  "main": "app.js",
+  "dependencies": {
+    "aframe-extras.grid": "^4.2.0",
+    "bcrypt": "^3.0.2",
+    "body-parser": "^1.18.3",
+    "browserify": "^16.2.3",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "http-server": "^0.11.1",
+    "mysql": "^2.16.0",
+    "nunjucks": "^3.1.4",
+    "shortid": "^2.2.14",
+    "sqlite3": "^4.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/jarchibald121/exhibit.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/jarchibald121/exhibit#readme"
+}

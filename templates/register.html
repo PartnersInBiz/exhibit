@@ -1,0 +1,53 @@
+{% set title = 'Register' %}
+{% extends '_layout.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="col">
+		<div class="container w-50">
+			<h2>Register</h2>
+			<div class="alert alert-warning d-none" role="alert"></div>
+			<form name="register" action="/register" method="POST">
+				<div class="form-row">
+					<div class="col form-group">
+						<label for="first_name">First name*</label>
+						<input type="text" class="form-control" name="first_name" id="first_name" placeholder="First name">
+					</div>
+					<div class="col form-group">
+						<label for="last_name">Last name*</label>
+						<input type="text" class="form-control" name="last_name" id="last_name" placeholder="Last name">
+					</div>
+					<div class="col form-group">
+						<label for="display_name">Display name</label>
+						<input type="text" class="form-control" name="display_name" id="display_name" placeholder="Display name" aria-describedby="display_name_help_block">
+						<small id="display_name_help_block" class="form-text text-muted">This is shown on exhibits you create and in any social interactions on Exhibitor. It defaults to your first and last name.</small>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col form-group">
+						<label for="email">Email*</label>
+						<input type="text" class="form-control" name="email" id="email" placeholder="Email">
+					</div>
+					<div class="col form-group">
+						<label for="password">Password*</label>
+						<input type="password" class="form-control" name="password" id="password" placeholder="Password" aria-describedby="password_help_block">
+						<small id="password_help_block" class="form-text text-muted">The password must be at least 6 characters long and have at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol.</small>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col form-group text-right">
+						<button type="submit" class="btn btn-primary">Register</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block scripts%}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/client/common.js"></script>
+<script src="/client/authentication.js"></script>
+{% endblock %}

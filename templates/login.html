@@ -1,0 +1,36 @@
+{% set title = 'Log In' %}
+{% extends '_layout.html' %}
+
+{% block content %}
+<div class="row">
+	<div class="col">
+		<div class="container w-50">
+			<h2>Log In</h2>
+			<div class="alert alert-warning d-none" role="alert"></div>
+			<form name="login" action="/login" method="POST">
+				<div class="form-row">
+					<div class="col form-group">
+						<label for="email">Email*</label>
+						<input type="text" class="form-control" name="email" id="email" placeholder="Email" autofocus>
+					</div>
+					<div class="col form-group">
+						<label for="password">Password*</label>
+						<input type="password" class="form-control" name="password" id="password" placeholder="Password">
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="col form-group text-right">
+						<button type="submit" class="btn btn-primary">Login</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block scripts%}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/client/common.js"></script>
+<script src="/client/authentication.js"></script>
+{% endblock %}

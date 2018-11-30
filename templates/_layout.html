@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+	<title>{{ title }} &minus; Exhibitor</title>
+</head>
+<body>
+	<nav class="navbar navbar-expand-md navbar-light bg-light border">
+		<a class="navbar-brand" href="/">Exhibitor</a>
+		<button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+		<div class="collapse navbar-collapse" id="navbar">
+			{% if session.user.id %}
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item">
+					<a class="nav-link" href="/">Dashboard</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/new">New Exhibit</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/browse">Browse Exhibits</a>
+				</li>
+			</ul>
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item"><span class="nav-link text-dark font-weight-bold">{{ session.user.display_name }}</span></li>
+				<li class="nav-item"><span class="nav-link text-dark">|</span></li>
+				<li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+			</ul>
+			{% else %}
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item"><a class="btn btn-primary mr-2" href="/register">Register</a></li>
+				<li class="nav-item"><a class="btn btn-secondary" href="/login">Login</a></li>
+			</ul>
+			{% endif %}
+		</div>
+	</nav>
+	<div class="container-fluid mt-3">
+		{% block content %}
+		{% endblock %}
+	</div>
+	{% block scripts %}
+	{% endblock %}
+</body>
+</html>
