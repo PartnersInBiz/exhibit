@@ -23,7 +23,6 @@
 
 		<a-entity id="grid" rotation="-90 0 0">
 		</a-entity>
-		<a-box position="0 0 0" scale=".5 .5 .5" material="color: yellow"></a-box>
 		<a-box position="36 0 -32" scale="5 .5 .5" material="color: red"></a-box>
 		<a-box position="36 0 -32" scale=".5 5 .5" material="color: green"></a-box>
 		<a-box position="36 0 -32" scale=".5 .5 5" material="color: blue"></a-box>
@@ -36,23 +35,22 @@
 				<table>
 					<tr>
 						<td id="short-walls-toggle" data-toggle="off"><span class="fas fa-map"></span></td>
-						<td><span class="fas fa-chevron-up"></span></td>
+						<td class="navigation-control" data-action="translate-forward"><span class="fas fa-chevron-up"></span></td>
 						<td class="invisible"></td>
 					</tr>
 					<tr>
-						<td rowspan="2"><span class="fas fa-chevron-left"></span></td>
-						<td class="smaller">
-							<span class="fas fa-plus d-block"></span>
+						<td rowspan="2" class="navigation-control" data-action="translate-left"><span class="fas fa-chevron-left"></span></td>
+						<td class="smaller navigation-control" data-action="zoom-in"><span class="fas fa-plus d-block"></span>
 						</td>
-						<td rowspan="2"><span class="fas fa-chevron-right"></span></td>
+						<td rowspan="2" class="navigation-control" data-action="translate-right"><span class="fas fa-chevron-right"></span></td>
 					</tr>
 					<tr>
-						<td class="smaller"><span class="fas fa-minus"></span></td>
+						<td class="smaller navigation-control" data-action="zoom-out"><span class="fas fa-minus"></span></td>
 					</tr>
 					<tr>
-						<td class=""><span class="fas fa-redo"></span></td>
-						<td><span class="fas fa-chevron-down"></span></td>
-						<td class=""><span class="fas fa-undo"></span></td>
+						<td class="navigation-control" data-action="rotate-clockwise"><span class="fas fa-redo"></span></td>
+						<td class="navigation-control" data-action="translate-backward"><span class="fas fa-chevron-down"></span></td>
+						<td class="navigation-control" data-action="rotate-counterclockwise"><span class="fas fa-undo"></span></td>
 					</tr>
 				</table>
 			</div>

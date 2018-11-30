@@ -95,59 +95,103 @@ class MovementDelta {
 	}
 }
 
+class Navigation {
+	constructor() {
+		this.deltas = new MovementDelta();
+	}
+
+	translate(direction, el) {
+		let currentPos = el.object3D.position;
+		let currentRot = el.object3D.rotation;
+		let delta;
+
+		if (direction == "left")
+			delta = this.deltas.left(currentRot.y);
+		else if (direction == "right")
+			delta = this.deltas.right(currentRot.y);
+		else if (direction == "forward")
+			delta = this.deltas.forward(currentRot.y);
+		else
+			delta = this.deltas.backward(currentRot.y);
+
+		el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
+	}
+
+	rotate(direction, el) {
+		let currentRot = el.object3D.rotation;
+
+		if (direction == "counterclockwise")
+			el.object3D.rotation.set(currentRot.x, currentRot.y + Math.PI / 24, currentRot.z);
+		else
+			el.object3D.rotation.set(currentRot.x, currentRot.y - Math.PI / 24, currentRot.z);
+	}
+
+	zoom(direction, el) {
+		let currentPos = el.object3D.position;
+		let currentRot = el.object3D.rotation;
+		let delta;
+
+		if (direction == "out")
+			delta = this.deltas.zoomOut(currentPos, currentRot.y);
+		else
+			delta = this.deltas.zoomIn(currentPos, currentRot.y);
+
+		el.object3D.position.set(currentPos.x + delta.x, currentPos.y + delta.y, currentPos.z + delta.z);
+	}
+}
+
 (() => {
 	AFRAME.registerComponent('navigation', {
 		init: function() {
 			let data = this.data;
 			let el = this.el;
-			let deltas = new MovementDelta();
+			let navigation = new Navigation();
 	
+			// Keyboard controls
 			document.addEventListener('keydown', function(event) {
-				let currentPos = el.object3D.position;
-				let currentRot = el.object3D.rotation;
+				// Translation
 				if (event.keyCode == 37)
-				{
-					let delta = deltas.left(currentRot.y);
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
-				}
+					navigation.translate("left", el);
 				else if (event.keyCode == 39)
-				{
-					let delta = deltas.right(currentRot.y);
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
-				}
+					navigation.translate("right", el);
 				else if (event.keyCode == 38)
-				{
-					let delta = deltas.forward(currentRot.y);
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
-				}
+					navigation.translate("forward", el);
 				else if (event.keyCode == 40)
-				{
-					let delta = deltas.backward(currentRot.y);
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y, currentPos.z + delta.z);
-				}
+					navigation.translate("backward", el);
+				// Rotation
 				else if (event.keyCode == 188)
-				{
-					el.object3D.rotation.set(currentRot.x, currentRot.y + Math.PI / 24, currentRot.z);
-				}
+					navigation.rotate("counterclockwise", el);
 				else if (event.keyCode == 190)
-				{
-					el.object3D.rotation.set(currentRot.x, currentRot.y - Math.PI / 24, currentRot.z);
-				}
+					navigation.rotate("clockwise", el);
+				// Zoom
+				else if (event.keyCode == 173)
+					navigation.zoom("out", el);
+				else if (event.keyCode == 61)
+					navigation.zoom("in", el);
 			});
+
+			// Zoom mouse controls
 			document.addEventListener("wheel", function(event) {
-				let currentPos = el.object3D.position;
-				let currentRot = el.object3D.rotation;
 				if (event.deltaY > 0)
-				{
-					let delta = deltas.zoomOut(currentPos, currentRot.y);
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y + delta.y, currentPos.z + delta.z);
-				}
+					navigation.zoom("out", el);
 				else
-				{
-					let delta = deltas.zoomIn(currentPos, currentRot.y);
-					el.object3D.position.set(currentPos.x + delta.x, currentPos.y + delta.y, currentPos.z + delta.z);
-				}
+					navigation.zoom("in", el);
 			});
+
+			// All controls - navigation tools in toolbar
+			for (control of document.getElementsByClassName("navigation-control"))
+			{
+				control.addEventListener("mousedown", function(e){
+					// Translate
+					let direction = this.dataset.action.split("-")[1];
+					if (this.dataset.action.indexOf("translate") > -1)
+						navigation.translate(direction, el);
+					else if (this.dataset.action.indexOf("rotate") > -1)
+						navigation.rotate(direction, el);
+					else if (this.dataset.action.indexOf("zoom") > -1)
+						navigation.zoom(direction, el);
+				});
+			}
 
 			document.addEventListener("mousedown", function(event){
 				let currentPos = el.object3D.position;

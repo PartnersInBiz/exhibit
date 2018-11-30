@@ -59,6 +59,26 @@ class GridSnap {
 			return meta;
 		}
 	}
+
+	space(intersection, height=1) {
+		let stringForm = intersection.object.el.attributes.position.value;
+		let parts = stringForm.split(" ");
+		let meta = {
+			position: {
+				x: parseInt(parts[0]),
+				y: parseInt(parts[1]) + (height / 2),
+				z: parseInt(parts[2]) - .5,
+				string: parts[0] + " " + (parseInt(parts[2]) + height / 2) + " " + (-parseInt(parts[1]) - .5)
+			},
+			ceiling: {
+				x: parseInt(parts[0]),
+				y: parseInt(parts[1]) + (height / 2) + WALL.tall,
+				z: parseInt(parts[2]) - .5,
+				string: parts[0] + " " + (parseInt(parts[2]) + height / 2 + WALL.tall) + " " + (-parseInt(parts[1]) - .5)
+			}
+		}
+		return meta;
+	}
 }
 
 (() => {
@@ -142,12 +162,86 @@ class GridSnap {
 			};
 
 			document.addEventListener("wall_tool_on", function(){
+				$("#wall-toggle").data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
+
 				el.addEventListener("mouseenter", wallSnap);
 				document.addEventListener("mousedown", removeWall);
+				document.dispatchEvent(EVENTS.floor_tool_off);
 			});
 			document.addEventListener("wall_tool_off", function(){
+				$("#wall-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
+
 				el.removeEventListener("mouseenter", wallSnap);
 				document.removeEventListener("mousedown", removeWall);
+			});
+
+			// Finalize adding floor
+			let addFloor = function(event){
+				if (typeof event.button != "undefined")
+				{
+					if (event.button == 0)
+					{
+						// need something separate for ceiling finalization
+						if (document.getElementById(unique_id) != null)
+							document.getElementById(unique_id).classList.remove("temp");
+					}
+					document.removeEventListener("mousedown", addFloor);
+				}
+			};
+
+			// Remove floor function
+			let removeFloor = function(event){
+				// If this event has the button identification information
+				if (typeof event.button != "undefined")
+				{
+					// If the button is a right click
+					if (event.button == 2)
+					{
+						// Get the element, remove from DOM if it's still there (mousedown often calls multiple times, so only want to do it once)
+						let item = document.getElementById(unique_id);
+						if (item != null)
+							item.parentNode.removeChild(item);
+					}
+				}
+				// If no button identification info, then it's an A-Frame event and has the relevant element -- we need that
+				else
+				{
+					// If the ID is indeed present, we store it in the unique_id variable for use in the previous condition later
+					if (typeof event.srcElement.id != "undefined")
+					{
+						if (event.srcElement.id.indexOf("floor_") > -1)
+							unique_id = event.srcElement.id;
+					}
+				}
+			};
+
+			// Grid space floor snap
+			let floorSnap = function(e){
+				let placement = SNAP.space(e.detail.intersection, FLOOR_HEIGHT);
+				if (!$(".temp[position='" + placement.position.string + "'").length)
+				{
+					unique_id = "floor_" + generate_shortid();
+					
+					$("a-scene").append('<a-box color="#c4c4c4" position="' + placement.position.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '"></a-box>');
+					$("a-scene").append('<a-box color="#c4c4c4" position="' + placement.ceiling.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '"></a-box>');
+					
+					// When user clicks, we finalize the floor segment by removing the temp class
+					document.addEventListener("mousedown", addFloor);
+				}
+			};
+
+			document.addEventListener("floor_tool_on", function(){
+				$("#floor-toggle").data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
+
+				el.addEventListener("mouseenter", floorSnap);
+				document.addEventListener("mousedown", removeFloor);
+				document.dispatchEvent(EVENTS.wall_tool_off);
+			});
+			document.addEventListener("floor_tool_off", function(){
+				$("#floor-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
+
+				el.removeEventListener("mouseenter", floorSnap);
+				document.removeEventListener("mousedown", removeFloor);
 			});
 		}
 	});

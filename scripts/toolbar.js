@@ -1,18 +1,16 @@
 (() => {
-	let wall_tool_on = new CustomEvent("wall_tool_on");
-	let wall_tool_off = new CustomEvent("wall_tool_off");
-
 	$("#wall-toggle").click(function(){
 		if ($(this).data("toggle") == "off")
-		{
-			$(this).data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
-			document.dispatchEvent(wall_tool_on);
-		}
+			document.dispatchEvent(EVENTS.wall_tool_on);
 		else
-		{
-			$(this).data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
-			document.dispatchEvent(wall_tool_off);
-		}
+			document.dispatchEvent(EVENTS.wall_tool_off);
+	});
+
+	$("#floor-toggle").click(function(){
+		if ($(this).data("toggle") == "off")
+			document.dispatchEvent(EVENTS.floor_tool_on);
+		else
+			document.dispatchEvent(EVENTS.floor_tool_off);
 	});
 
 	$("#short-walls-toggle").click(function(){
