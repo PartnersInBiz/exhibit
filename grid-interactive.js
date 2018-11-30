@@ -72,7 +72,7 @@ class GridSnap {
 			let el = this.el;
 			let defaultColor = el.getAttribute('material').color;
 			const SNAP = new GridSnap();
-			let move = true;
+			let unique_id;
 	
 			el.addEventListener('mouseenter', function () {
 				// Grid hover color
@@ -85,49 +85,64 @@ class GridSnap {
 	
 			el.addEventListener('mouseleave', function (e) {
 				el.setAttribute('color', defaultColor);
-				//console.log(e.relatedTarget)
-				//console.log(e)
-				//if (e.target.className != "grid-space")
-				//if (move)
-					$("a-box.temp").remove();
+
+				$("a-box.temp").remove();
 			});
 
-			/*let checkChange = function(e, position){
-				if (e.detail.intersection.point.x != position.x || v.detail.intersection.point.z != position.z)
-					{
-						$("a-box.temp").remove();
-						el.removeEventListener("mouseenter", checkChange);
-						el.addEventListener("mouseenter", wallSnap)
-					}
-			}*/
-			let position;
-			let check = function(ev){
-				if (ev.detail.intersection.point.x != position.x || ev.detail.intersection.point.z != position.z)
+			let addWall = function(event){
+				if (typeof event.button != "undefined")
 				{
-					$("a-box.temp").remove();
-					el.removeEventListener("mouseenter", check)
-					el.addEventListener("mouseenter", wallSnap)
+					if (event.button == 0)
+					{
+						if (document.getElementById(unique_id) != null)
+							document.getElementById(unique_id).classList.remove("temp");
+					}
+					document.removeEventListener("mousedown", addWall);
 				}
-			}
+			};
 
 			let wallSnap = function(e){
 				// Grid wall snap
-				//console.log(e)
 				let placement = SNAP.wall(e.detail.intersection);
-				//console.log(placement)
 				if (!$(".temp[position='" + placement.position.string + "'").length)
 				{
-					$("a-scene").append('<a-box color="blue" position="' + placement.position.string + '" scale="1 .1 1" rotation="' + placement.rotation.string + '" class="temp"></a-box>');
+					unique_id = "wall_" + generate_shortid();
+					$("a-scene").append('<a-box color="blue" position="' + placement.position.string + '" scale="1 .1 1" rotation="' + placement.rotation.string + '" class="temp" id="' + unique_id + '"></a-box>');
+					
+					// When user clicks, we finalize the wall segment by removing the temp class
+					document.addEventListener("mousedown", addWall);
 				}
-
-				position = e.detail.intersection.point;
-				//$(el).addClass("noevent")
-
-				//el.removeEventListener("mouseenter", wallSnap);
-				//document.addEventListener("mousemove", check);
 			};
 
 			el.addEventListener("mouseenter", wallSnap);
+
+			// Remove wall function
+			let removeWall = function(event){
+				// If this event has the button identification information
+				if (typeof event.button != "undefined")
+				{
+					// If the button is a right click
+					if (event.button == 2)
+					{
+						// Get the element, remove from DOM if it's still there (mousedown often calls multiple times, so only want to do it once)
+						let item = document.getElementById(unique_id);
+						if (item != null)
+							item.parentNode.removeChild(item);
+					}
+				}
+				// If no button identification info, then it's an A-Frame event and has the relevant element -- we need that
+				else
+				{
+					// If the ID is indeed present, we store it in the unique_id variable for use in the previous condition later
+					if (typeof event.srcElement.id != "undefined")
+					{
+						if (event.srcElement.id.indexOf("wall_") > -1)
+							unique_id = event.srcElement.id;
+					}
+				}
+			};
+
+			document.addEventListener("mousedown", removeWall)
 		}
 	  });
 })();

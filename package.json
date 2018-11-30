@@ -7,6 +7,7 @@
     "aframe-extras.grid": "^4.2.0",
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
+    "browserify": "^16.2.3",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "http-server": "^0.11.1",
