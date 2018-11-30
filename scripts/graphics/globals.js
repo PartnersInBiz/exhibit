@@ -6,7 +6,7 @@ const PAN_SENSITIVITY = 75;
 const WALL = {
 	short: .5,
 	tall: 2
-}
+};
 let WALL_HEIGHT = WALL.tall;
 
 function parametize(assoc)

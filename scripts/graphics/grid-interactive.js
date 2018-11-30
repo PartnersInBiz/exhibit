@@ -142,6 +142,7 @@ class GridSnap {
 			};
 
 			document.addEventListener("wall_tool_on", function(){
+				console.log("YAY")
 				el.addEventListener("mouseenter", wallSnap);
 				document.addEventListener("mousedown", removeWall);
 			});

@@ -66,6 +66,54 @@ app.get("/client/:script", function(req, res){
 	});
 });
 
+app.get("/client/graphics/:script", function(req, res){
+	let options = {
+		root: __dirname + "/scripts/graphics/",
+		dotfiles: "deny",
+		headers: {
+			"x-timestamp": Date.now(),
+			"x-sent": true
+		}
+	};
+
+	res.sendFile(req.params.script, options, function(error){
+		if (error)
+			server.handleError(req, res, "NO_SEND_SCRIPT");
+	});
+});
+
+app.get("/client/textures/:texture", function(req, res){
+	let options = {
+		root: __dirname + "/default/images/",
+		dotfiles: "deny",
+		headers: {
+			"x-timestamp": Date.now(),
+			"x-sent": true
+		}
+	};
+
+	res.sendFile(req.params.texture, options, function(error){
+		if (error)
+			server.handleError(req, res, "NO_SEND_SCRIPT");
+	});
+});
+
+app.get("/client/css/:css", function(req, res){
+	let options = {
+		root: __dirname + "/default/css/",
+		dotfiles: "deny",
+		headers: {
+			"x-timestamp": Date.now(),
+			"x-sent": true
+		}
+	};
+
+	res.sendFile(req.params.css, options, function(error){
+		if (error)
+			server.handleError(req, res, "NO_SEND_SCRIPT");
+	});
+});
+
 // Render error page
 app.get("/error/:error", function(req, res){
 	return res.render("error.html", {session: req.session, error: server.errors[req.params.error]});
@@ -218,6 +266,11 @@ let new_exhibit = function(req, res){
 	});
 };
 app.get("/new", new_exhibit);
+
+let edit = function(req, res){
+	return res.render("edit.html");
+}
+app.get("/edit", edit);
 
 
 // Listen on port 3000
