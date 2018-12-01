@@ -44,10 +44,75 @@ con.connect(function(error){
 let login_required = function(req, res, next) {
 	// If the user is not logged in, make them login
 	if (typeof req.session.user == "undefined")
-		res.redirect("/login");
+	{
+		if (typeof req.body.ajax != "undefined" || typeof req.params.ajax != "undefined" || typeof req.query.ajax != "undefined")
+			res.status(403).send("/login");
+		else
+			res.redirect("/login");
+	}
 	else
 		return next();
 }
+
+// Get a list of all the images the user owns
+app.get("/media/list", function(req, res){
+	server.getUserMedia(con, mysql, 6, function(mediax){
+		let media = [
+			{
+				name: "hi"
+			},
+			{
+				name: "hi2"
+			},
+			{
+				name: "hi3"
+			},
+			{
+				name: "hi4"
+			},
+			{
+				name: "hi5"
+			},
+			{
+				name: "hi6"
+			},
+			{
+				name: "hi7"
+			},
+			{
+				name: "hi8"
+			},
+			{
+				name: "hi9"
+			},
+			{
+				name: "hi10"
+			},
+			{
+				name: "hi11"
+			},
+			{
+				name: "hi12"
+			},
+			{
+				name: "hi13"
+			},
+			{
+				name: "hi14"
+			},
+			{
+				name: "hi15"
+			},
+			{
+				name: "hi16"
+			},
+			{
+				name: "hi17"
+			}
+		]
+		res.send(media);
+	});
+});
 
 // Render client-side scripts
 app.get("/client/:script", function(req, res){

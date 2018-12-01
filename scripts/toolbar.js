@@ -25,7 +25,7 @@
 				segment.object3D.position.set(currentPos.x, WALL.short / 2, currentPos.z);
 				segment.object3D.scale.set(currentScale.x, currentScale.y, WALL.short);
 			}
-			WALL_HEIGHT = .5;
+			WALL_HEIGHT = WALL.short;
 		}
 		else
 		{
@@ -38,7 +38,64 @@
 				segment.object3D.position.set(currentPos.x, WALL.tall / 2, currentPos.z);
 				segment.object3D.scale.set(currentScale.x, currentScale.y, WALL.tall);
 			}
-			WALL_HEIGHT = 2;
+			WALL_HEIGHT = WALL.tall;
 		}
+	});
+
+	let media_modal = new Vue({
+		el: '#media-modal',
+		delimiters: ["<%", "%>"],
+		data: {
+			media: [],
+			show: [],
+			pages: 0,
+			page: 0,
+			rows: 0
+		},
+		methods: {
+			previous_page: function(page){
+				if (this.page > 0)
+				{
+					this.page -= 1;
+					show_page();
+				}
+			},
+			next_page: function(){
+				if (this.page < this.pages - 1)
+				{
+					this.page += 1;
+					show_page();
+				}
+			}
+		}
+	});
+
+	let show_page = function(){
+		let list = media_modal.media;
+		let page = media_modal.page;
+
+		media_modal.show = new Array(list.slice(page * 16, page * 16 + 4), list.slice(page * 16 + 4, page * 16 + 8), list.slice(page * 16 + 8, page * 16 + 12), list.slice(page * 16 + 12, page * 16 + 16));
+		media_modal.rows = Math.ceil(list.slice(page * 16, page * 16 + 16).length / 4);
+	};
+
+	$("#media-modal").on("show.bs.modal", function(){
+		let data = {
+			ajax: true
+		};
+
+		let fail = (xhr) => {
+			if (xhr.status == 403)
+				window.location = xhr.responseText;
+		};
+
+		let success = (list) => {
+			media_modal.media = list;
+			media_modal.pages = Math.ceil(list.length / 16);
+			media_modal.page = 0;
+			
+			show_page();
+		};
+
+		$.getJSON("/media/list", data, success).fail(fail);
 	});
 })();

@@ -96,15 +96,19 @@ class GridSnap {
 
 			el.addEventListener('mouseenter', function() {
 				// Grid hover color
-				el.setAttribute('color', data.color);
+				if (el.classList.contains("floor"))
+					el.setAttribute("src", "#floor-space-green");
+				else
+					el.setAttribute('src', "#grid-space-green");
 			});
-
-			$(".temp").on("mouseenter", function(e){
-				move = false;
-			})
 	
 			el.addEventListener('mouseleave', function (e) {
 				el.setAttribute('color', defaultColor);
+
+				if (el.classList.contains("floor"))
+					el.setAttribute("src", "#floor-space");
+				else
+					el.setAttribute("src", "#grid-space");
 
 				$("a-box.temp").remove();
 			});
@@ -222,8 +226,7 @@ class GridSnap {
 				{
 					unique_id = "floor_" + generate_shortid();
 					
-					$("a-scene").append('<a-box color="#c4c4c4" position="' + placement.position.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '"></a-box>');
-					$("a-scene").append('<a-box color="#c4c4c4" position="' + placement.ceiling.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '"></a-box>');
+					$("a-scene").append('<a-box src="#floor-space" position="' + placement.position.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '" grid-interactive></a-box>');
 					
 					// When user clicks, we finalize the floor segment by removing the temp class
 					document.addEventListener("mousedown", addFloor);

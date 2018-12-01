@@ -14,7 +14,10 @@
 {% block content %}
 	<a-scene cursor="rayOrigin: mouse" id="scene">
 		<a-assets>
-			<img id="grid-space" src="/client/textures/grid.png">
+			<img id="grid-space" src="/client/textures/grid-space.png">
+			<img id="grid-space-green" src="/client/textures/grid-space-green.png">
+			<img id="floor-space" src="/client/textures/floor-space.png">
+			<img id="floor-space-green" src="/client/textures/floor-space-green.png">
 		</a-assets>
 
 		<a-entity camera mouse-cursor navigation position="0 5 3" rotation="-45 0 0" spectator="true" id="camera" far="20000">
@@ -54,19 +57,73 @@
 					</tr>
 				</table>
 			</div>
-			<div class="col-9">
+			<div class="col-9 mt-1">
 				<button class="btn btn-secondary" id="wall-toggle" data-toggle="off">Wall</button>
 				<button class="btn btn-secondary" id="floor-toggle" data-toggle="off">Floor</button>
 				<button class="btn btn-secondary" id="objects-toggle" data-toggle="off">Objects</button>
-				<button class="btn btn-secondary" id="media-toggle" data-toggle="off">Media</button>
+				<button class="btn btn-secondary" id="media-toggle" data-toggle="modal" data-target="#media-modal">Media</button>
 				<button class="btn btn-secondary" id="models-toggle" data-toggle="off">3D Models</button>
 			</div>
 		</div>
 	</nav>
+	<div class="modal fade" role="dialog" id="media-modal">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel">Media</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<div class="row" v-if="media.length < 1">
+							<div class="col-md">
+								<div class="card">
+									<div class="card-body">
+										<h5 class="card-title">No media yet</h5>
+										<p class="card-text">Add an image or video to get started.</p>
+									</div>
+									<div class="card-footer">
+										Supported file formats: video, image
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="row mt-3" v-if="media.length > 0" v-for="n in rows">
+							<div class="col-md-3" v-for="file in show[n - 1]">
+								<div class="card">
+									<div class="card-body">
+										<h5 class="card-title"><% file.name %></h5>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<nav v-if="pages > 1" class="mt-3 mr-3">
+						<ul class="pagination justify-content-end">
+							<li class="page-item" v-on:click="previous_page"><button class="page-link">Previous</button></li>
+							<li class="page-item" v-on:click="next_page"><button class="page-link">Next</button></li>
+						</ul>
+					</nav>
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"></button>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
 
 {% block scripts %}
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
 	<script src="/client/graphics/grid.js"></script>
 	<script src="/client/toolbar.js"></script>
 {% endblock %}
