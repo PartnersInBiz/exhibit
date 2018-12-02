@@ -171,7 +171,7 @@ class Navigation {
 			});
 
 			// Zoom mouse controls
-			document.addEventListener("wheel", function(event) {
+			document.getElementById("scene").addEventListener("wheel", function(event) {
 				if (event.deltaY > 0)
 					navigation.zoom("out", el);
 				else
@@ -310,7 +310,7 @@ class Navigation {
 				}
 			});*/
 
-			document.addEventListener("contextmenu", e => e.preventDefault());
+			document.getElementById("scene").addEventListener("contextmenu", e => e.preventDefault());
 		}
 	  });
 })();

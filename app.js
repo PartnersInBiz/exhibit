@@ -5,6 +5,24 @@ const bodyParser = require("body-parser");
 const mysql = require("mysql");
 const bcrypt = require("bcrypt");
 const shortid = require("shortid");
+const fs = require("fs");
+const mime = require("mime-types");
+const sharp = require("sharp");
+const ffmpeg = require("ffmpeg");
+const multer  = require("multer");
+const upload = multer({
+	dest: "uploads/",
+	limits: {fieldSize: 100000000},
+	fileFilter: function(req, file, callback){
+		const types_allowed = ["image/jpeg", "image/png", "image/gif", "video/mp4", "video/webm", "video/ogg", "video/x-ms-wmv", "video/avi"];
+
+		if (types_allowed.indexOf(file.mimetype) > -1)
+			callback(null, true);
+		else
+			callback(null, false);
+	}
+});
+
 const common = require("./scripts/common");
 const secure = require("./secure/secure");
 const server = require("./server");
@@ -55,63 +73,164 @@ let login_required = function(req, res, next) {
 }
 
 // Get a list of all the images the user owns
-app.get("/media/list", function(req, res){
-	server.getUserMedia(con, mysql, 6, function(mediax){
-		let media = [
-			{
-				name: "hi"
-			},
-			{
-				name: "hi2"
-			},
-			{
-				name: "hi3"
-			},
-			{
-				name: "hi4"
-			},
-			{
-				name: "hi5"
-			},
-			{
-				name: "hi6"
-			},
-			{
-				name: "hi7"
-			},
-			{
-				name: "hi8"
-			},
-			{
-				name: "hi9"
-			},
-			{
-				name: "hi10"
-			},
-			{
-				name: "hi11"
-			},
-			{
-				name: "hi12"
-			},
-			{
-				name: "hi13"
-			},
-			{
-				name: "hi14"
-			},
-			{
-				name: "hi15"
-			},
-			{
-				name: "hi16"
-			},
-			{
-				name: "hi17"
-			}
-		]
+app.get("/media/list", login_required, function(req, res){
+	server.getUserMedia(con, mysql, req.session.user.id, function(media){
 		res.send(media);
 	});
+});
+
+// Crop thumbnail
+let crop_thumbnail = function(req, res, path, cb=function(){}){
+	fs.readFile(path, function(error, data){
+		if (error)
+		{
+			server.handleError(req, res, "FILE_UPLOAD_FAILED");
+			throw error;
+		}
+		sharp(data).jpeg().resize({ width: 150, height: 100 }).toBuffer().then(output => {
+			fs.writeFile("uploads/thumbnails/" + req.file.filename, output, function (err) {
+				if (err)
+				{
+					server.handleError(req, res, "FILE_UPLOAD_FAILED");
+					throw err;
+				}
+				if (path.indexOf("temp") > - 1)
+				{
+					fs.unlink(path, (err) => {
+						if (err)
+						{
+							server.handleError(req, res, "FILE_UPLOAD_FAILED");
+							throw err;
+						}
+					});
+				}
+			}); 
+		});
+	});
+};
+
+// Upload file
+let upload_file = function(req, res){
+	if (typeof req.file != "undefined")
+	{
+		// Thumbnail generator -- first for images
+		if (req.file.mimetype.indexOf("jpeg") > -1 || req.file.mimetype.indexOf("png") > -1)
+		{
+			crop_thumbnail(req, res, req.file.path);
+		}
+		// Thumbnail generator -- for videos
+		else if (req.file.mimetype.indexOf("video") > -1)
+		{
+			try
+			{
+				let process = new ffmpeg("uploads/" + req.file.filename);
+				process.then(function (video) {
+					// Callback mode
+					video.fnExtractFrameToJPG('uploads/temp', {
+						frame_rate: 1,
+						number: 1
+					}, function (error, files) {
+						if (error)
+						{
+							server.handleError("FILE_UPLOAD_FAILED");
+							throw error;
+						}
+						else
+						{
+							crop_thumbnail(req, res, files[0]);
+						}
+					});
+				}, function (err) {
+					server.handleError("FILE_UPLOAD_FAILED");
+					throw err;
+				});
+			}
+			catch (e) {
+				console.log(e.code);
+				console.log(e.msg);
+
+				server.handleError("FILE_UPLOAD_FAILED");
+			}
+		}
+
+		// Name and description
+		if (typeof req.body.file_name == "undefined" || req.body.file_name.removeSpaces() == "")
+			req.body.file_name = req.file.originalname;
+		
+		if (typeof req.body.file_description == "undefined" || req.body.file_description.removeSpaces() == "")
+			req.body.file_description = req.file.originalname;
+
+		// Insert into database
+		let sql = "INSERT INTO files (gen_id, path, type, name, description, owner_id) VALUES (?, ?, ?, ?, ?, ?)";
+		let inserts = [req.file.filename, req.file.path, req.file.mimetype, req.body.file_name, req.body.file_description, req.session.user.id];
+
+		sql = mysql.format(sql, inserts);
+
+		con.query(sql, function (error, result) {
+			if (error)
+			{
+				server.handleError(req, res, "FILE_UPLOAD_FAILED");
+				throw error;
+			}
+			res.send("success");
+		});
+	}
+	else
+		server.handleError("FORM_INVALID");
+};
+app.post("/upload", login_required, upload.single("media_upload_file"), upload_file);
+
+// Serve files
+app.get("/file/:thumb?/:file", function(req, res){
+	let options = {
+		root: __dirname,
+		dotfiles: "deny",
+		headers: {
+			"x-timestamp": Date.now(),
+			"x-sent": true
+		}
+	};
+
+	let cb = () => {
+		res.sendFile(req.params.file, options, function(error){
+			if (error)
+				server.handleError(req, res, "NO_SEND_FILE");
+		});
+	};
+
+	if (!req.params.thumb)
+	{
+		options.root += "/uploads/";
+
+		let sql = "SELECT type FROM files WHERE gen_id=?";
+		let inserts = [req.params.file];
+		sql = mysql.format(sql, inserts);
+
+		con.query(sql, function (error, result, fields) {
+			if (error)
+			{
+				server.handleError(req, res, "NO_SEND_FILE");
+				throw error;
+			}
+			else if (result.length > 0)
+			{
+				options.headers["Content-Type"] = result[0].type;
+				cb(options);
+			}
+			else
+			{
+				server.handleError(req, res, "NO_SEND_FILE");
+			}
+		});
+	}
+	else
+	{
+		options.root += "/uploads/thumbnails/";
+		options.headers["Content-Type"] = "image/jpeg";
+		cb();
+	}
+
+	
 });
 
 // Render client-side scripts

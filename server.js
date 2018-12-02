@@ -5,7 +5,9 @@ module.exports = {
 		"EMAIL_TAKEN": "This email is already in use for another account.",
 		"REGISTRATION_FAILED": "Failed to register with the information provided.",
 		"FORM_INVALID": "The input provided was invalid. Make sure you have followed the instructions for each field.",
-		"NO_SEND_SCRIPT": "Couldn't send script."
+		"NO_SEND_SCRIPT": "Couldn't send script.",
+		"NO_SEND_FILE": "Couldn't send file.",
+		"FILE_UPLOAD_FAILED": "Failed to upload file."
 	},
 	handleError: function(req, res, error){
 		if (typeof req.body.ajax == "undefined")
@@ -28,7 +30,7 @@ module.exports = {
 		}
 	},
 	getUserExhibits: function(con, mysql, user_id, callback){
-		let sql = "SELECT * FROM exhibits WHERE owner_id=?";
+		let sql = "SELECT * FROM exhibits WHERE owner_id=? AND deleted=0 ORDER BY id DESC";
 		let inserts = [user_id];
 		sql = mysql.format(sql, inserts);
 
@@ -40,7 +42,7 @@ module.exports = {
 		});
 	},
 	getUserMedia: function(con, mysql, user_id, callback){
-		let sql = "SELECT gen_id, type, name, description FROM files WHERE owner_id=?";
+		let sql = "SELECT gen_id, type, name, description FROM files WHERE owner_id=? AND deleted=0 ORDER BY id DESC";
 		let inserts = [user_id];
 		sql = mysql.format(sql, inserts);
 

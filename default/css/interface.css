@@ -30,3 +30,11 @@
 	background: #c4c4c4;
 	cursor: pointer;
 }
+
+.navbar {
+	visibility: hidden;
+}
+
+.a-enter-vr {
+	visibility: hidden;
+}
