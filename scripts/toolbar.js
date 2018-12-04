@@ -75,12 +75,27 @@
 			},
 			place_media: function(e){
 				e.preventDefault();
-				let width = $("#plane_width").val();
-				let height = $("#plane_height").val();
 				
-				$("a-assets").append('<video src="/file/' + this.selected + '" id="vid" autoplay loop></video>');
-				// ADJUST FOR WHEN IT'S A VIDEO
-				$("a-scene").append('<a-video position="0 0 0" width="' + width + '" height="' + height + '" rotation="0 0 0" id="' + generate_shortid() + '" src="#vid"></a-video>');
+				// We add the media as an asset only if it hasn't already been added
+				let item = this.media.find(obj => obj.gen_id == this.selected);
+				if (item.type.indexOf("video") > -1 && !document.getElementById("media_" + this.selected))
+				{
+					$("a-assets").append('<video src="/file/' + this.selected + '" id="media_' + this.selected + '" autoplay loop></video>');
+				}
+				else if (item.type.indexOf("image") > -1 && !document.getElementById("media_" + this.selected))
+				{
+					$("a-assets").append('<img src="/file/' + this.selected + '" id="media_' + this.selected + '">');
+				}
+
+				let _2d_tool_on = new CustomEvent("2d_tool_on", {
+					detail: {
+						type: item.type,
+						media_id: "media_" + this.selected
+					}
+				});
+				document.dispatchEvent(_2d_tool_on);
+
+				$("#media-modal").modal("hide");
 			},
 			upload_file: function(e){
 				e.preventDefault();

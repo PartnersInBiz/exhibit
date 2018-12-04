@@ -60,13 +60,9 @@ To add floors, click the floor button in the toolbar at the bottom of the editor
 
 By default, a ceiling will be added at the top of the wall wherever a floor tile is located.
 
-#### Adding images
+#### Adding images and videos
 
-To place an image in your exhibit, click the image button in the toolbar at the bottom of the editor. Either select an image you've already uploaded, or upload a new image. Hovering over the walls will show where you are placing the image; by default, this location will snap to the wall nearest to your mouse. Left-click to finalize the image's location.
-
-#### Adding videos
-
-To place a video in your exhibit, click the video button in the toolbar at the bottom of the editor. Either select a video you've already uploaded, or upload a new video. Hovering over the walls will show where you are placing the video; by default, this location will snap to the wall nearest to your mouse. Left-click to finalize the video's location.
+To place an image or video (2D media) in your exhibit, click the Media button in the toolbar at the bottom of the editor. Either select 2D media you've already uploaded, or upload new 2D media. Hovering over the walls will show where you are placing the 2D media; by default, this location will snap to the wall nearest to your mouse. Left-click to finalize the 2D media's location. If you wish to change which side of the wall the 2D media will appear on, tap the `\|` key on your keyboard.
 
 #### Adding pedestals
 

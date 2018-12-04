@@ -168,6 +168,9 @@ class Navigation {
 					navigation.zoom("out", el);
 				else if (event.keyCode == 61)
 					navigation.zoom("in", el);
+				// For 2D media creation, flipping sides of the wall
+				else if (event.keyCode == 220)
+					SIDE_MULTIPLIER = -SIDE_MULTIPLIER;
 			});
 
 			// Zoom mouse controls
