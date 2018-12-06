@@ -490,10 +490,85 @@ let new_exhibit = function(req, res){
 app.get("/new", new_exhibit);
 
 let edit = function(req, res){
-	return res.render("edit.html");
-}
-app.get("/edit", edit);
+	let serve_editor = (result) => {
+		if (result.length > 0)
+		{
+			let exhibit = {
+				title: result[0].title,
+				description: result[0].description,
+				gen_id: result[0].gen_id,
+				data: ""
+			};
+			fs.readFile(result[0].file_path + result[0].gen_id, "utf8", function(error, data) {
+				if (error)
+				{
+					if (error.code == "ENOENT")
+					{
+						fs.copyFile(result[0].file_path + "_struct.html", result[0].file_path + result[0].gen_id, (err) => {
+							if (err) throw err;
+						});
+					}
+					else
+						throw error;
+				}
 
+				exhibit.data = {
+					assets: data.split("<!--ASSETS-->")[1],
+					content: data.split("<!--ASSETS-->")[0]
+				};
+				res.render("edit.html", {exhibit: exhibit});
+			});
+		}
+	};
+	server.getUserExhibit(con, mysql, req.params.id, req.session.user.id, serve_editor);
+}
+app.get("/edit/:id", login_required, edit);
+
+// No such thing as /edit, must have an exhibit ID
+app.get("/edit", function(req, res){
+	res.redirect("/");
+});
+
+let view = function(req, res){
+	let serve_viewer = (result) => {
+		if (result.length > 0)
+		{
+			let exhibit = {
+				title: result[0].title,
+				description: result[0].description,
+				gen_id: result[0].gen_id,
+				data: ""
+			};
+			fs.readFile(result[0].file_path + result[0].gen_id, "utf8", function(error, data) {
+				if (error)
+				{
+					if (error.code == "ENOENT")
+					{
+						res.redirect("/ERROR")
+						fs.copyFile(result[0].file_path + "_struct.html", result[0].file_path + result[0].gen_id, (err) => {
+							if (err) throw err;
+						});
+					}
+					else
+						throw error;
+				}
+
+				exhibit.data = {
+					assets: data.split("<!--ASSETS-->")[1],
+					content: data.split("<!--ASSETS-->")[0]
+				};
+				res.render("view.html", {exhibit: exhibit});
+			});
+		}
+	};
+	server.getUserExhibit(con, mysql, req.params.id, 0, serve_viewer);
+}
+app.get("/view/:id", view);
+
+// No such thing as /view, must have an exhibit ID
+app.get("/view", function(req, res){
+	res.redirect("/");
+});
 
 // Listen on port 3000
 app.listen(PORT);

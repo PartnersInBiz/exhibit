@@ -1,4 +1,4 @@
-const SIZE = 16;
+const SIZE = 24;
 const HALFWIDTH = screen.width / 2;
 const HALFHEIGHT = window.innerHeight / 2;
 const DRAGSCALE = 1.2;

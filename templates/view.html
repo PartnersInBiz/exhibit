@@ -1,0 +1,22 @@
+{% set title = exhibit.title %}
+{% extends '_layout.html' %}
+
+{% block head %}
+	<script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+	<script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
+	<script src="/client/graphics/globals.js"></script>
+{% endblock%}
+
+{% block content %}
+	<a-scene id="scene">
+		<a-sky color="#f8f8f8"></a-sky>
+		<a-assets>
+			<img id="floor-space" src="/client/textures/floor-space.png">
+			{{ exhibit.data.assets|safe }}
+		</a-assets>
+
+		<a-entity camera look-controls wasd-controls position="0 1.6 0" id="camera" far="20000"></a-entity>
+
+		{{ exhibit.data.content|safe }}
+	</a-scene>
+{% endblock %}

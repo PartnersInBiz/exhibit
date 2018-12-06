@@ -19,6 +19,8 @@
 			<img id="grid-space-green" src="/client/textures/grid-space-green.png">
 			<img id="floor-space" src="/client/textures/floor-space.png">
 			<img id="floor-space-green" src="/client/textures/floor-space-green.png">
+
+			{{ exhibit.data.assets|safe }}
 		</a-assets>
 
 		<a-entity camera mouse-cursor navigation position="0 5 3" rotation="-45 0 0" spectator="true" id="camera" far="20000">
@@ -26,10 +28,8 @@
 		</a-entity>
 
 		<a-entity id="grid" rotation="-90 0 0"></a-entity>
-		<a-entity id="building"></a-entity>
-		<a-entity id="objects"></a-entity>
 
-		<a-sky color="#ECECEC"></a-sky>
+		{{ exhibit.data.content|safe }}
 	</a-scene>
 	<nav class="toolbar container-fluid">
 		<div class="row">
@@ -56,12 +56,37 @@
 					</tr>
 				</table>
 			</div>
-			<div class="col-9 mt-1">
-				<button class="btn btn-secondary" id="wall-toggle" data-toggle="off">Wall</button>
-				<button class="btn btn-secondary" id="floor-toggle" data-toggle="off">Floor</button>
-				<button class="btn btn-secondary" id="objects-toggle" data-toggle="off">Objects</button>
-				<button class="btn btn-secondary" id="media-toggle" data-toggle="modal" data-target="#media-modal">Media</button>
-				<button class="btn btn-secondary" id="models-toggle" data-toggle="off">3D Models</button>
+			<div class="col-9 mt-2">
+				<div>
+					<button class="btn btn-secondary" id="wall-toggle" data-toggle="off">Wall</button>
+					<button class="btn btn-secondary" id="floor-toggle" data-toggle="off">Floor</button>
+					<button class="btn btn-secondary" id="objects-toggle" data-toggle="off">Objects</button>
+					<button class="btn btn-secondary" id="media-toggle" data-toggle="modal" data-target="#media-modal">Media</button>
+					<button class="btn btn-secondary" id="models-toggle" data-toggle="off">3D Models</button>
+				</div>
+				<div class="mt-4">
+					<form name="exhibit_details" id="exhibit_details" action="/update" method="POST">
+						<div class="form-row">
+							<div class="col-md-3">
+								<input name="exhibit_title" id="exhibit_title" class="form-control" value="{{ exhibit.title }}">
+							</div>
+							<div class="col-md-7">
+								<input name="exhibit_description" id="exhibit_description" class="form-control" value="{{ exhibit.description }}">
+							</div>
+							<div class="col-md-2">
+								<p class="form-text text-muted">Saved</p>
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="col-md-3">
+								<label for="exhibit_title" class="form-text text-muted ml-1">Title</label>
+							</div>
+							<div class="col-md-9">
+								<label for="exhibit_description" class="form-text text-muted ml-1">Description</label>
+							</div>
+						</div>
+					</form>
+				</div>
 			</div>
 		</div>
 	</nav>

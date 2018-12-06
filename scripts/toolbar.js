@@ -132,6 +132,7 @@
 	let show_page = function(){
 		let list = media_modal.media;
 		let page = media_modal.page;
+		media_modal.mode = "list";
 
 		media_modal.show = new Array(list.slice(page * 16, page * 16 + 4), list.slice(page * 16 + 4, page * 16 + 8), list.slice(page * 16 + 8, page * 16 + 12), list.slice(page * 16 + 12, page * 16 + 16));
 		media_modal.rows = Math.ceil(list.slice(page * 16, page * 16 + 16).length / 4);

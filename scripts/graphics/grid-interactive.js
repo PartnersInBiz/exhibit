@@ -153,7 +153,7 @@ class GridSnap {
 				{
 					unique_id = "wall_" + generate_shortid();
 					
-					$("#building").append('<a-box color="#d8d8d8" position="' + placement.position.string + '" scale="1.1 .1 ' + WALL_HEIGHT + '" rotation="' + placement.rotation.string + '" class="temp wall" id="' + unique_id + '"></a-box>');
+					$("#walls").append('<a-box color="#d8d8d8" position="' + placement.position.string + '" scale="1.1 .1 ' + WALL_HEIGHT + '" rotation="' + placement.rotation.string + '" class="temp wall" id="' + unique_id + '"></a-box>');
 					
 					// When user clicks, we finalize the wall segment by removing the temp class
 					document.addEventListener("mousedown", addWall);
@@ -247,7 +247,7 @@ class GridSnap {
 				{
 					unique_id = "floor_" + generate_shortid();
 					
-					$("#building").append('<a-box src="#floor-space" position="' + placement.position.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '" grid-interactive></a-box>');
+					$("#floors").append('<a-box src="#floor-space" position="' + placement.position.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '" grid-interactive></a-box>');
 					
 					// When user clicks, we finalize the floor segment by removing the temp class
 					document.addEventListener("mousedown", addFloor);
@@ -293,11 +293,11 @@ class GridSnap {
 
 					if (object_placement.type.indexOf("video") > -1)
 					{
-						$("#objects").append('<a-video position="' + placement.position.string + '" width="' + object_placement.width + '" height="' + object_placement.height + '" rotation="' + placement.rotation.string + '" id="' + unique_id + '" src="#' + object_placement.media_id + '" class="temp"></a-video>');
+						$("#2d_media").append('<a-video position="' + placement.position.string + '" width="' + object_placement.width + '" height="' + object_placement.height + '" rotation="' + placement.rotation.string + '" id="' + unique_id + '" src="#' + object_placement.media_id + '" class="temp"></a-video>');
 					}
 					else if (object_placement.type.indexOf("image") > -1)
 					{
-						$("#objects").append('<a-image position="' + placement.position.string + '" width="' + object_placement.width + '" height="' + object_placement.height + '" rotation="' + placement.rotation.string + '" id="' + unique_id + '" src="#' + object_placement.media_id + '" class="temp"></a-image>');
+						$("#2d_media").append('<a-image position="' + placement.position.string + '" width="' + object_placement.width + '" height="' + object_placement.height + '" rotation="' + placement.rotation.string + '" id="' + unique_id + '" src="#' + object_placement.media_id + '" class="temp"></a-image>');
 					}
 					
 					// When user clicks, we finalize the wall segment by removing the temp class
