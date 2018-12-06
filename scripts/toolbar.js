@@ -51,8 +51,9 @@
 			pages: 0,
 			page: 0,
 			rows: 0,
-			mode: 'list',
-			selected: 0
+			mode: "list",
+			selected: 0,
+			alert: ""
 		},
 		methods: {
 			previous_page: function(page){
@@ -99,6 +100,7 @@
 			},
 			upload_file: function(e){
 				e.preventDefault();
+				let vuer = this;
 		
 				if ($("#media_upload_file").val() != "")
 				{
@@ -116,9 +118,13 @@
 						error: function(jqXHR, textStatus, errorThrown){
 							if (jqXHR.status == 403)
 								window.location = jqXHR.responseText;
+							else if (jqXHR.status == 400)
+								vuer.alert = jqXHR.responseText;
 						}
 					});
 				}
+				else
+					vuer.alert = "The input provided was invalid. Make sure you have followed the instructions for each field.";
 			}
 		}
 	});

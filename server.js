@@ -10,7 +10,7 @@ module.exports = {
 		"FILE_UPLOAD_FAILED": "Failed to upload file."
 	},
 	handleError: function(req, res, error){
-		if (typeof req.body.ajax == "undefined")
+		if (typeof req.body.ajax == "undefined" && typeof req.params.ajax == "undefined" && typeof req.query.ajax == "undefined")
 		{
 			res.redirect("/error/" + error);
 		}
@@ -20,7 +20,7 @@ module.exports = {
 		}
 	},
 	handleSuccess: function(req, res, path){
-		if (typeof req.body.ajax == "undefined")
+		if (typeof req.body.ajax == "undefined" && typeof req.params.ajax == "undefined" && typeof req.query.ajax == "undefined")
 		{
 			res.redirect(path);
 		}

@@ -14,7 +14,7 @@ const upload = multer({
 	dest: "uploads/",
 	limits: {fieldSize: 100000000},
 	fileFilter: function(req, file, callback){
-		const types_allowed = ["image/jpeg", "image/png", "image/gif", "video/mp4", "video/webm", "video/ogg", "video/x-ms-wmv", "video/avi"];
+		const types_allowed = ["image/jpeg", "image/png", "image/gif", "video/mp4", "video/webm", "video/ogg", "video/x-ms-wmv", "video/x-msvideo", "video/quicktime"];
 
 		if (types_allowed.indexOf(file.mimetype) > -1)
 			callback(null, true);
@@ -79,6 +79,33 @@ app.get("/media/list", login_required, function(req, res){
 	});
 });
 
+// Convert videos to MP4
+let convert_video = function(req, res, path){
+	console.log("Convert video");
+	let process = new ffmpeg("uploads/" + req.file.filename);
+	
+	process.then(function (video) {
+		// Settings
+		video
+		.setVideoFormat("mp4")
+		.setVideoCodec("h264")
+		.save("uploads/" + req.file.filename, function(error){
+			if (error)
+			{
+				server.handleError(req, res, "FILE_UPLOAD_FAILED");
+				throw error;
+			}
+			else
+			{
+				console.log("Converted video", req.file.filename);
+			}
+		});
+	});
+		
+		
+	// Callback mode
+};
+
 // Crop thumbnail
 let crop_thumbnail = function(req, res, path, cb=function(){}){
 	fs.readFile(path, function(error, data){
@@ -102,6 +129,7 @@ let crop_thumbnail = function(req, res, path, cb=function(){}){
 							server.handleError(req, res, "FILE_UPLOAD_FAILED");
 							throw err;
 						}
+						cb(req, res, path);
 					});
 				}
 			}); 
@@ -132,16 +160,16 @@ let upload_file = function(req, res){
 					}, function (error, files) {
 						if (error)
 						{
-							server.handleError("FILE_UPLOAD_FAILED");
+							server.handleError(req, res, "FILE_UPLOAD_FAILED");
 							throw error;
 						}
 						else
 						{
-							crop_thumbnail(req, res, files[0]);
+							crop_thumbnail(req, res, files[0], convert_video);
 						}
 					});
 				}, function (err) {
-					server.handleError("FILE_UPLOAD_FAILED");
+					server.handleError(req, res, "FILE_UPLOAD_FAILED");
 					throw err;
 				});
 			}
@@ -149,7 +177,7 @@ let upload_file = function(req, res){
 				console.log(e.code);
 				console.log(e.msg);
 
-				server.handleError("FILE_UPLOAD_FAILED");
+				server.handleError(req, res, "FILE_UPLOAD_FAILED");
 			}
 		}
 
@@ -160,9 +188,16 @@ let upload_file = function(req, res){
 		if (typeof req.body.file_description == "undefined" || req.body.file_description.removeSpaces() == "")
 			req.body.file_description = req.file.originalname;
 
+		// Video mimetype should always become mp4 because of conversion
+		let mimetype;
+		if (req.file.mimetype.indexOf("video") > -1)
+			mimetype = "video/mp4";
+		else
+			mimetype = req.file.mimetype;
+
 		// Insert into database
 		let sql = "INSERT INTO files (gen_id, path, type, name, description, owner_id) VALUES (?, ?, ?, ?, ?, ?)";
-		let inserts = [req.file.filename, req.file.path, req.file.mimetype, req.body.file_name, req.body.file_description, req.session.user.id];
+		let inserts = [req.file.filename, req.file.path, mimetype, req.body.file_name, req.body.file_description, req.session.user.id];
 
 		sql = mysql.format(sql, inserts);
 
@@ -176,7 +211,10 @@ let upload_file = function(req, res){
 		});
 	}
 	else
-		server.handleError("FORM_INVALID");
+	{
+		console.log(req.file)
+		server.handleError(req, res, "FORM_INVALID");
+	}
 };
 app.post("/upload", login_required, upload.single("media_upload_file"), upload_file);
 
@@ -193,7 +231,7 @@ app.get("/file/:thumb?/:file", function(req, res){
 
 	let cb = () => {
 		res.sendFile(req.params.file, options, function(error){
-			if (error)
+			if (error && error.code != "ECONNABORTED")
 				server.handleError(req, res, "NO_SEND_FILE");
 		});
 	};
@@ -215,7 +253,7 @@ app.get("/file/:thumb?/:file", function(req, res){
 			else if (result.length > 0)
 			{
 				options.headers["Content-Type"] = result[0].type;
-				cb(options);
+				cb();				
 			}
 			else
 			{
