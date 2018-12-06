@@ -31,10 +31,18 @@
 	cursor: pointer;
 }
 
-.navbar {
+.a-enter-vr {
 	visibility: hidden;
 }
 
-.a-enter-vr {
-	visibility: hidden;
+#item_tools {
+	z-index: 10;
+	top: 20%;
+	left: 15px;
+	cursor: pointer;
+}
+
+._2d_only {
+	display: none;
+	list-style: none;
 }

@@ -17,7 +17,11 @@ const EVENTS = {
 	wall_tool_off: new CustomEvent("wall_tool_off"),
 	floor_tool_on: new CustomEvent("floor_tool_on"),
 	floor_tool_off: new CustomEvent("floor_tool_off"),
-	_2d_tool_off: new CustomEvent("2d_tool_off")
+	_2d_tool_off: new CustomEvent("2d_tool_off"),
+	item_click: new CustomEvent("item_click"),
+	item_click_stay: new CustomEvent("item_click", {detail: "stay_open"}),
+	exhibit_updated: new CustomEvent("exhibit_updated"),
+	exhibit_updated_meta: new CustomEvent("exhibit_updated", {detail: "meta"})
 };
 
 function parametize(assoc)

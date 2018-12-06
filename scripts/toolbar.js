@@ -42,6 +42,19 @@
 		}
 	});
 
+	$("#grid-toggle").click(function(){
+		if ($(this).data("toggle") == "off")
+		{
+			$(this).data("toggle", "on").children(":first").removeClass("far").addClass("fas");
+			document.getElementById("grid").object3D.position.set(0, 0, 0);
+		}
+		else
+		{
+			$(this).data("toggle", "off").children(":first").removeClass("fas").addClass("far");
+			document.getElementById("grid").object3D.position.set(10000, 0, 0);
+		}
+	});
+
 	let media_modal = new Vue({
 		el: '#media-modal',
 		delimiters: ["<%", "%>"],
@@ -81,11 +94,11 @@
 				let item = this.media.find(obj => obj.gen_id == this.selected);
 				if (item.type.indexOf("video") > -1 && !document.getElementById("media_" + this.selected))
 				{
-					$("a-assets").append('<video src="/file/' + this.selected + '" id="media_' + this.selected + '" autoplay loop></video>');
+					$("a-assets").append('<video src="/file/' + this.selected + '" id="media_' + this.selected + '" autoplay loop muted class="user_asset"></video>');
 				}
 				else if (item.type.indexOf("image") > -1 && !document.getElementById("media_" + this.selected))
 				{
-					$("a-assets").append('<img src="/file/' + this.selected + '" id="media_' + this.selected + '">');
+					$("a-assets").append('<img src="/file/' + this.selected + '" id="media_' + this.selected + '" class="user_asset">');
 				}
 
 				let _2d_tool_on = new CustomEvent("2d_tool_on", {
@@ -161,4 +174,109 @@
 	};
 
 	$("#media-modal").on("show.bs.modal", list_media);
+
+	// Handle popup toolbar for individual items
+	document.getElementById("delete-item").addEventListener("click", function(){
+		let id = document.getElementById("item_tools").getAttribute("data-item-id");
+		$("#" + id).remove();
+		
+		document.getElementById("item_tools").classList.add("invisible");
+		
+		// We sound the alarm to save
+		document.dispatchEvent(EVENTS.exhibit_updated);
+	});
+
+	// Add event listeners for the exhibit meta inputs
+	document.getElementById("exhibit_title").addEventListener("change", function(){
+		document.dispatchEvent(EVENTS.exhibit_updated_meta);
+	});
+
+	document.getElementById("exhibit_description").addEventListener("change", function(){
+		document.dispatchEvent(EVENTS.exhibit_updated_meta);
+	});
+
+	// Handle saving the data to the server
+	document.addEventListener("exhibit_updated", function(e){
+		// Tell the user we're saving
+		$("#save_status").text("Saving...");
+
+		// Cleanup the workspace
+		for (asset of document.getElementsByClassName("user_asset"))
+		{
+			if (document.querySelector("[src='#" + asset.id + "']") == null)
+				document.getElementsByTagName("a-assets")[0].removeChild(document.getElementById(asset.id));
+		}
+
+		// Setup AJAX
+		let gen_id = document.getElementById("gen_id").value;
+		let data;
+		if (e.detail == "meta")
+		{
+			// Prep for AJAX
+			data = {
+				type: "meta",
+				title: document.getElementById("exhibit_title").value,
+				description: document.getElementById("exhibit_description").value
+			};
+		}
+		else
+		{
+			// Get only the user assets
+			$("#asset_manager").html($("a-assets").html());
+			$("#asset_manager").find(".default_asset").remove();
+
+			// All that follows is a way to make sure that even if the user is in short-wall view mode, the walls are saved at full height
+			let content = document.getElementById("user_content").innerHTML;
+			
+			// We start by changing the scale
+			let filtered = content.replaceAll('scale="1.1 .1 ' + WALL.short + '"', 'scale="1.1 .1 ' + WALL.tall + '"');
+
+			// Now we loop through all the elements to change the positioning, since A-Frame is center-positioned
+			let html = '';
+			for (ele of filtered.split(">"))
+			{
+				if (ele.indexOf('wall"') > -1)
+				{
+					// Regex from here: https://stackoverflow.com/questions/16261635/javascript-split-string-by-space-but-ignore-space-in-quotes-notice-not-to-spli
+					let attributes = ele.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g);
+					for (const [i, attribute] of attributes.entries())
+					{
+						// If there's a position attribute for this wall, change it so that the Y position is suitable for a tall wall
+						if (attribute.indexOf("position=") > -1)
+						{
+							let pos = attribute.split('"')[1];
+							pos = pos.split(" ");
+							pos[1] = WALL.tall / 2;
+
+							attributes[i] = 'position="' + pos.join(" ") + '"';
+						}
+						
+					}
+					html += attributes.join(" ") + ">";
+				}
+				else if (ele.indexOf("<") > -1)
+					html += ele + ">";
+			}
+
+			// Prep for AJAX
+			data = {
+				type: "content",
+				content: '<a-entity id="user_content">' + html + "</a-entity>\n<!--ASSETS-->\n" + document.getElementById("asset_manager").innerHTML
+			};
+		}
+
+		// If save works
+		let success = function(){
+			$("#save_status").text("Saved.");
+		};
+
+		// If save doesn't work
+		let error = function(jqXHR, textStatus, errorThrown){
+			if (jqXHR.status == 400)
+				$("#save_status").text("Not saved.");
+		};
+
+		// AJAX request
+		$.post("/update/" + gen_id + "?ajax=true", data, success).fail(error);
+	});
 })();

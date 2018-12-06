@@ -4,8 +4,8 @@
 {% block content %}
 
 {% for exhibit in exhibits %}
-{% if loop.index0 == 0 %}
-<div class="row">
+{% if loop.index0 % 5 == 0 %}
+<div class="row mb-5">
 {% endif %}
 	<div class="col-md">
 		<div class="card">
@@ -17,16 +17,18 @@
 				<a href="/edit/{{ exhibit.gen_id }}">Edit</a>
 				|
 				<a href="/view/{{ exhibit.gen_id }}">View</a>
+				|
+				<a href="/delete/{{ exhibit.gen_id }}">Delete</a>
 			</div>
 		</div>
 	</div>
 {% if loop.last and loop.index0 != 4 %}
-	{% for i in range(0, 4 - loop.index0) %}
+	{% for i in range(0, 4 - loop.index0 % 5) %}
 	<div class="col-md">
 	</div>
 	{% endfor %}
 {% endif %}
-{% if loop.index0 == 4 %}
+{% if loop.index0 % 5 == 4 %}
 </div>
 {% endif %}
 {% endfor%}

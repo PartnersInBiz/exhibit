@@ -484,10 +484,14 @@ let new_exhibit = function(req, res){
 		if (error)
 			throw error;
 
-		res.redirect("/edit/" + inserts[0]);
+		fs.copyFile("exhibits/_struct.html", "exhibits/" + inserts[0], (err) => {
+			if (err)
+				throw err;
+			res.redirect("/edit/" + inserts[0]);
+		});
 	});
 };
-app.get("/new", new_exhibit);
+app.get("/new", login_required, new_exhibit);
 
 let edit = function(req, res){
 	let serve_editor = (result) => {
@@ -499,24 +503,16 @@ let edit = function(req, res){
 				gen_id: result[0].gen_id,
 				data: ""
 			};
+			
 			fs.readFile(result[0].file_path + result[0].gen_id, "utf8", function(error, data) {
 				if (error)
-				{
-					if (error.code == "ENOENT")
-					{
-						fs.copyFile(result[0].file_path + "_struct.html", result[0].file_path + result[0].gen_id, (err) => {
-							if (err) throw err;
-						});
-					}
-					else
-						throw error;
-				}
+					throw error;
 
 				exhibit.data = {
 					assets: data.split("<!--ASSETS-->")[1],
 					content: data.split("<!--ASSETS-->")[0]
 				};
-				res.render("edit.html", {exhibit: exhibit});
+				res.render("edit.html", {exhibit: exhibit, session: req.session});
 			});
 		}
 	};
@@ -541,23 +537,13 @@ let view = function(req, res){
 			};
 			fs.readFile(result[0].file_path + result[0].gen_id, "utf8", function(error, data) {
 				if (error)
-				{
-					if (error.code == "ENOENT")
-					{
-						res.redirect("/ERROR")
-						fs.copyFile(result[0].file_path + "_struct.html", result[0].file_path + result[0].gen_id, (err) => {
-							if (err) throw err;
-						});
-					}
-					else
-						throw error;
-				}
+					throw error;
 
 				exhibit.data = {
 					assets: data.split("<!--ASSETS-->")[1],
 					content: data.split("<!--ASSETS-->")[0]
 				};
-				res.render("view.html", {exhibit: exhibit});
+				res.render("view.html", {exhibit: exhibit, session: req.session});
 			});
 		}
 	};
@@ -569,6 +555,71 @@ app.get("/view/:id", view);
 app.get("/view", function(req, res){
 	res.redirect("/");
 });
+
+// Deleting an exhibit
+let delete_exhibit = function(req, res){
+	let sql = "UPDATE exhibits SET deleted=1 WHERE gen_id=?";
+	let inserts = [req.params.id];
+	sql = mysql.format(sql, inserts);
+
+	con.query(sql, function (error, result) {
+		if (error)
+			throw error;
+			
+		res.redirect("/");
+	});
+};
+app.get("/delete/:id", delete_exhibit);
+
+// No such thing as /delete, must have an exhibit ID
+app.get("/delete", function(req, res){
+	res.redirect("/");
+});
+
+// Update the database or file for the exhibit
+let update = function(req, res){
+	if (typeof req.body.type != "undefined" && req.body.type == "meta")
+	{
+		const required = ["title", "description"];
+		if (common.validateForm(req.body, required))
+		{
+			let sql = "UPDATE exhibits SET title=?, description=? WHERE gen_id=?";
+			let inserts = [req.body.title, req.body.description, req.params.id];
+			sql = mysql.format(sql, inserts);
+
+			con.query(sql, function (error) {
+				if (error)
+				{
+					server.handleError(req, res, "SAVE_FAILED");
+					throw error;
+				}
+				res.send("success");
+			});
+		}
+		else
+			server.handleError(req, res, "SAVE_FAILED");
+	}
+	else if (typeof req.body.type != "undefined" && req.body.type == "content")
+	{
+		const required = ["content"];
+		if (common.validateForm(req.body, required))
+		{
+			fs.writeFile("exhibits/" + req.params.id, req.body.content, function(err) {
+				if(err) {
+					server.handleError(req, res, "SAVE_FAILED");
+					throw err;
+				}
+
+				res.send("success");
+			}); 
+		}
+		else
+			server.handleError(req, res, "SAVE_FAILED");
+	}
+	else
+		server.handleError(req, res, "FORM_INVALID");
+};
+app.post("/update/:id", update);
 
 // Listen on port 3000
 app.listen(PORT);

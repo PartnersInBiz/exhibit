@@ -38,7 +38,7 @@ If you're using a VR headset, see the instructions on the [A-Frame website](http
 
 #### Metadata
 
-To edit the title and description of the exhibit, use the input boxes in the toolbar at the top of the editor page.
+To edit the title and description of the exhibit, use the input boxes in the toolbar at the bottom of the editor page.
 
 #### Navigation
 
@@ -50,7 +50,13 @@ To zoom, scroll using your mouse wheel (or your touchpad).
 
 To rotate on the vertical axis, use the `,` and `.` keys.
 
-All of these navigational functions, plus the ability to rotate the camera between looking upward and downward, are available in the module on the bottom left of the editor screen.
+All of these navigational functions are available in the module on the bottom left of the editor screen.
+
+#### Useful viewing tools
+
+When editing an exhibit, the walls may obstruct your view. Click the button to the left of the `forward` button in the navigation module, and the walls will become shorter.
+
+When left-clicking items within the exhibit, as to delete them, you may find it difficult to select a specific item. To solve this issue, click the button to the right of the `forward` button in the navigation module, and the grid will disappear. This allows you to have more control over your input (sometimes the program will think you're clicking the grid instead of an item, so nothing will happen).
 
 #### Creating rooms
 
@@ -64,13 +70,11 @@ By default, a ceiling will be added at the top of the wall wherever a floor tile
 
 To place an image or video (2D media) in your exhibit, click the Media button in the toolbar at the bottom of the editor. Either select 2D media you've already uploaded, or upload new 2D media. Hovering over the walls will show where you are placing the 2D media; by default, this location will snap to the wall nearest to your mouse. Left-click to finalize the 2D media's location. If you wish to change which side of the wall the 2D media will appear on, tap the `\|` key on your keyboard.
 
-#### Adding pedestals
+#### Deleting anything
 
-To place a pedestal for an object, click the pedestal button in the toolbar at the bottom of the editor. Hovering over the grid will show where you are placing the pedestal; by default, this location will snap to the grid space nearest to your mouse. Left-click the finalize the pedestal's location.
+When the wall and floor tools are selected, you can right-click any wall or floor to delete it.
 
-#### Adding 3D models
-
-To place a 3D model in your exhibit, click the 3D model button in the toolbar at the bottom of the editor. Either select a 3D model you've already uploaded, or upload a new 3D model. Hovering over the grid will show where you are placing the 3D model; by default, this location will snap to the grid space nearest to your mouse. If a pedestal is present, the model will automatically be elevated atop that pedestal. Left-click to finalize the model's location.
+To delete anything in the exhibit (including floors and walls), make sure you're not in any other tools (the buttons on the bottom toolbar are toggle buttons, so just click any blue buttons) and then left-click on any item within your exhibit. A menu will appear on the left. Click delete.
 
 #### Saving the exhibit
 

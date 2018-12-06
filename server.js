@@ -8,7 +8,8 @@ module.exports = {
 		"NO_SEND_SCRIPT": "Couldn't send script.",
 		"NO_SEND_FILE": "Couldn't send file.",
 		"FILE_UPLOAD_FAILED": "Failed to upload file.",
-		"NO_ACCESS": "Couldn't access exhibit."
+		"NO_ACCESS": "Couldn't access exhibit.",
+		"SAVE_FAILED": "Couldn't save exhibit."
 	},
 	handleError: function(req, res, error){
 		if (typeof req.body.ajax == "undefined" && typeof req.params.ajax == "undefined" && typeof req.query.ajax == "undefined")

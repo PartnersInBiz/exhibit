@@ -3,6 +3,7 @@
 
 {% block head %}
 	<link href="/client/css/interface.css" rel="stylesheet">
+	<link href="/client/css/embedded.css" rel="stylesheet">
 	<script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
 	<script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
 	<script src="/client/graphics/globals.js"></script>
@@ -12,13 +13,13 @@
 {% endblock%}
 
 {% block content %}
-	<a-scene cursor="rayOrigin: mouse" id="scene">
+	<a-scene cursor="rayOrigin: mouse" id="scene" embedded>
 		<a-sky color="#f8f8f8"></a-sky>
 		<a-assets>
-			<img id="grid-space" src="/client/textures/grid-space.png">
-			<img id="grid-space-green" src="/client/textures/grid-space-green.png">
-			<img id="floor-space" src="/client/textures/floor-space.png">
-			<img id="floor-space-green" src="/client/textures/floor-space-green.png">
+			<img id="grid-space" src="/client/textures/grid-space.png" class="default_asset">
+			<img id="grid-space-green" src="/client/textures/grid-space-green.png" class="default_asset">
+			<img id="floor-space" src="/client/textures/floor-space.png" class="default_asset">
+			<img id="floor-space-green" src="/client/textures/floor-space-green.png" class="default_asset">
 
 			{{ exhibit.data.assets|safe }}
 		</a-assets>
@@ -31,6 +32,16 @@
 
 		{{ exhibit.data.content|safe }}
 	</a-scene>
+
+	<ul class="list-group w-25 d-block position-absolute invisible" id="item_tools" data-item-id="">
+		<li class="list-group-item bg-secondary text-white">Options</li>
+		<li class="list-group-item _2d_only" id="_2d_wall_height">
+			<label for="_2d_wall_height_input">Height on wall:</label>
+			<input type="text" name="_2d_wall_height" id="_2d_wall_height_input" class="form-control" value="1.6">
+		</li>
+		<li class="list-group-item" id="delete-item">Delete</li>
+	</ul>
+
 	<nav class="toolbar container-fluid">
 		<div class="row">
 			<div class="col-3 navigation_controls">
@@ -38,7 +49,7 @@
 					<tr>
 						<td id="short-walls-toggle" data-toggle="off"><span class="fas fa-map"></span></td>
 						<td class="navigation-control" data-action="translate-forward"><span class="fas fa-chevron-up"></span></td>
-						<td class="invisible"></td>
+						<td id="grid-toggle" data-toggle="on"><span class="fas fa-square"></span></td>
 					</tr>
 					<tr>
 						<td rowspan="2" class="navigation-control" data-action="translate-left"><span class="fas fa-chevron-left"></span></td>
@@ -60,9 +71,7 @@
 				<div>
 					<button class="btn btn-secondary" id="wall-toggle" data-toggle="off">Wall</button>
 					<button class="btn btn-secondary" id="floor-toggle" data-toggle="off">Floor</button>
-					<button class="btn btn-secondary" id="objects-toggle" data-toggle="off">Objects</button>
 					<button class="btn btn-secondary" id="media-toggle" data-toggle="modal" data-target="#media-modal">Media</button>
-					<button class="btn btn-secondary" id="models-toggle" data-toggle="off">3D Models</button>
 				</div>
 				<div class="mt-4">
 					<form name="exhibit_details" id="exhibit_details" action="/update" method="POST">
@@ -74,7 +83,7 @@
 								<input name="exhibit_description" id="exhibit_description" class="form-control" value="{{ exhibit.description }}">
 							</div>
 							<div class="col-md-2">
-								<p class="form-text text-muted">Saved</p>
+								<p class="form-text text-muted" id="save_status">Saved.</p>
 							</div>
 						</div>
 						<div class="form-row">
@@ -209,6 +218,9 @@
 			</div>
 		</div>
 	</div>
+	<input type="hidden" name="gen_id" id="gen_id" value="{{ exhibit.gen_id }}">
+	<div class="d-none" id="asset_manager"></div>
+	<div class="d-none" id="content_manager"></div>
 {% endblock %}
 
 {% block scripts %}
@@ -216,8 +228,9 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-	<script src="/socket.io/socket.io.js"></script>
 
+	<script src="/client/common.js"></script>
 	<script src="/client/graphics/grid.js"></script>
 	<script src="/client/toolbar.js"></script>
+	<script src="/client/scene-height.js"></script>
 {% endblock %}
