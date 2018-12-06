@@ -11,6 +11,8 @@ let WALL_HEIGHT = WALL.tall;
 let WALL_WIDTH = .1;
 let FLOOR_HEIGHT = .01;
 let SIDE_MULTIPLIER = 1;
+let CONTEXT_ENABLED = true;
+let HUMAN_HEIGHT = 1.6;
 
 const EVENTS = {
 	wall_tool_on: new CustomEvent("wall_tool_on"),

@@ -102,6 +102,9 @@ class GridSnap {
 }
 
 (() => {
+	const SNAP = new GridSnap();
+	let unique_id;
+
 	AFRAME.registerComponent('grid-interactive', {
 		schema: {
 			color: {default: '#00FF08'}
@@ -111,8 +114,6 @@ class GridSnap {
 			let data = this.data;
 			let el = this.el;
 			let defaultColor = el.getAttribute("material").color;
-			const SNAP = new GridSnap();
-			let unique_id;
 			let object_placement = {type: '', media_id: '', width: -1, height: -1};
 
 			el.addEventListener('mouseenter', function() {
@@ -134,162 +135,10 @@ class GridSnap {
 				$(".temp").remove();
 			});
 
-			let addWall = function(event){
-				if (typeof event.button != "undefined")
-				{
-					if (event.button == 0)
-					{
-						if (document.getElementById(unique_id) != null)
-						{
-							document.getElementById(unique_id).classList.remove("temp");
-							document.getElementById(unique_id).setAttribute("click-menu", "");
+			
+			
 
-							// We sound the alarm to save
-							document.dispatchEvent(EVENTS.exhibit_updated);
-						}
-					}
-					document.removeEventListener("mousedown", addWall);
-				}
-			};
-
-			let wallSnap = function(e){
-				// Grid wall snap
-				let placement = SNAP.wall(e.detail.intersection);
-				if (!$(".temp[position='" + placement.position.string + "'").length)
-				{
-					unique_id = "wall_" + generate_shortid();
-					
-					$("#walls").append('<a-box color="#d8d8d8" position="' + placement.position.string + '" scale="1.1 .1 ' + WALL_HEIGHT + '" rotation="' + placement.rotation.string + '" class="temp wall" id="' + unique_id + '"></a-box>');
-					
-					// When user clicks, we finalize the wall segment by removing the temp class
-					document.addEventListener("mousedown", addWall);
-				}
-			};
-
-			// Remove wall function
-			let removeWall = function(event){
-				// If this event has the button identification information
-				if (typeof event.button != "undefined")
-				{
-					// If the button is a right click
-					if (event.button == 2)
-					{
-						// Get the element, remove from DOM if it's still there (mousedown often calls multiple times, so only want to do it once)
-						let item = document.getElementById(unique_id);
-						if (item != null && unique_id.indexOf("wall_") > -1)
-						{
-							item.parentNode.removeChild(item);
-							
-							// We sound the alarm to save
-							document.dispatchEvent(EVENTS.exhibit_updated);
-						}
-					}
-				}
-				// If no button identification info, then it's an A-Frame event and has the relevant element -- we need that
-				else
-				{
-					// If the ID is indeed present, we store it in the unique_id variable for use in the previous condition later
-					if (typeof event.srcElement.id != "undefined")
-					{
-						if (event.srcElement.id.indexOf("wall_") > -1)
-							unique_id = event.srcElement.id;
-					}
-				}
-			};
-
-			document.addEventListener("wall_tool_on", function(){
-				$("#wall-toggle").data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
-
-				// This is the source of the freeze - 572 different event listeners are being added
-				el.addEventListener("mouseenter", wallSnap);
-				document.addEventListener("mousedown", removeWall);
-				document.dispatchEvent(EVENTS.floor_tool_off);
-			});
-			document.addEventListener("wall_tool_off", function(){
-				$("#wall-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
-
-				el.removeEventListener("mouseenter", wallSnap);
-				document.removeEventListener("mousedown", removeWall);
-			});
-
-			// Finalize adding floor
-			let addFloor = function(event){
-				if (typeof event.button != "undefined")
-				{
-					if (event.button == 0)
-					{
-						// need something separate for ceiling finalization
-						if (document.getElementById(unique_id) != null)
-						{
-							document.getElementById(unique_id).classList.remove("temp");
-							document.getElementById(unique_id).setAttribute("click-menu", "");
-
-							// We sound the alarm to save
-							document.dispatchEvent(EVENTS.exhibit_updated);
-						}
-					}
-					document.removeEventListener("mousedown", addFloor);
-				}
-			};
-
-			// Remove floor function
-			let removeFloor = function(event){
-				// If this event has the button identification information
-				if (typeof event.button != "undefined")
-				{
-					// If the button is a right click
-					if (event.button == 2)
-					{
-						// Get the element, remove from DOM if it's still there (mousedown often calls multiple times, so only want to do it once)
-						let item = document.getElementById(unique_id);
-						if (item != null)
-						{
-							item.parentNode.removeChild(item);
-							
-							// We sound the alarm to save
-							document.dispatchEvent(EVENTS.exhibit_updated);
-						}
-					}
-				}
-				// If no button identification info, then it's an A-Frame event and has the relevant element -- we need that
-				else
-				{
-					// If the ID is indeed present, we store it in the unique_id variable for use in the previous condition later
-					if (typeof event.srcElement.id != "undefined")
-					{
-						if (event.srcElement.id.indexOf("floor_") > -1)
-							unique_id = event.srcElement.id;
-					}
-				}
-			};
-
-			// Grid space floor snap
-			let floorSnap = function(e){
-				let placement = SNAP.space(e.detail.intersection, FLOOR_HEIGHT);
-				if (!$(".temp[position='" + placement.position.string + "'").length)
-				{
-					unique_id = "floor_" + generate_shortid();
-					
-					$("#floors").append('<a-box src="#floor-space" position="' + placement.position.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '" grid-interactive></a-box>');
-					
-					// When user clicks, we finalize the floor segment by removing the temp class
-					document.addEventListener("mousedown", addFloor);
-				}
-			};
-
-			document.addEventListener("floor_tool_on", function(){
-				$("#floor-toggle").data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
-
-				el.addEventListener("mouseenter", floorSnap);
-				document.addEventListener("mousedown", removeFloor);
-				document.dispatchEvent(EVENTS.wall_tool_off);
-			});
-			document.addEventListener("floor_tool_off", function(){
-				$("#floor-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
-
-				el.removeEventListener("mouseenter", floorSnap);
-				document.removeEventListener("mousedown", removeFloor);
-			});
+			
 
 			/* Here we handle 2D object placement */
 			// Finalize object location
@@ -378,31 +227,263 @@ class GridSnap {
 			};
 
 			// Highlight the selected item
-			el.addEventListener("mousedown", function(){
-				if (el.tagName == "A-IMAGE" || el.tagName == "A-VIDEO")
+			el.addEventListener("mousedown", function(e){
+				if (CONTEXT_ENABLED)
 				{
-					el.setAttribute("src", "#floor-space");
-					$("._2d_only").show();
-					document.getElementById("_2d_wall_height_input").value = el.object3D.position.y;
-				}
-				else
-				{
-					$("._2d_only").hide();
-				}
-				el.setAttribute("color", "#D4F4FF");
+					if (el.tagName == "A-IMAGE" || el.tagName == "A-VIDEO")
+					{
+						el.setAttribute("src", "#floor-space");
+						$("._2d_only").show();
+						document.getElementById("_2d_wall_height_input").value = el.object3D.position.y;
+					}
+					else
+					{
+						$("._2d_only").hide();
+					}
+					el.setAttribute("color", "#D4F4FF");
 
-				if (!el.classList.contains("grid-space"))
-				{
-					let tools = document.getElementById("item_tools")
-					tools.classList.remove("invisible");
-					tools.setAttribute("data-item-id", el.id)
-					
-					document.dispatchEvent(EVENTS.item_click_stay);
+					if (!el.classList.contains("grid-space"))
+					{
+						let tools = document.getElementById("item_tools")
+						tools.classList.remove("invisible");
+						tools.setAttribute("data-item-id", el.id)
+						
+						document.dispatchEvent(EVENTS.item_click_stay);
+					}
+					else
+						document.dispatchEvent(EVENTS.item_click);
+					document.addEventListener("item_click", clear_selection);
 				}
-				else
-					document.dispatchEvent(EVENTS.item_click);
-				document.addEventListener("item_click", clear_selection);
 			});
 		}
+	});
+
+	// For moving the spawn point, primarily
+	AFRAME.registerComponent("spawn-point", {
+		init: function() {
+			let el = this.el;
+			let defaultColor = el.getAttribute("material").color;
+
+			// Finalize spawn placement
+			let addSpawn = function(e){
+				if (typeof e.button != "undefined")
+				{
+					if (e.button == 0)
+					{
+						if (document.getElementById("spawn_point") != null)
+						{
+							document.getElementById("spawn_point").classList.remove("temp");
+							document.getElementById("spawn_point").setAttribute("spawn-point", "");
+
+							// Cancel the mouseover event
+							document.getElementById("grid").removeEventListener("mouseenter", spawnSnap);
+
+							CONTEXT_ENABLED = true;
+
+							// We sound the alarm to save
+							document.dispatchEvent(EVENTS.exhibit_updated);
+						}
+					}
+					document.removeEventListener("mousedown", addSpawn);
+				}
+			};
+
+			// Grid space snap
+			let spawnSnap = function(e){
+				CONTEXT_ENABLED = false;
+
+				let placement = SNAP.space(e.detail.intersection, HUMAN_HEIGHT);
+				if (!$(".temp[position='" + placement.position.string + "'").length)
+				{
+					$("#spawn").append('<a-box position="' + placement.position.string + '" scale=".3 .3 .3" color="#8A2000" id="spawn_point" class="temp" spawn-point></a-box>');
+						
+					// When user clicks, we finalize the floor segment by removing the temp class
+					document.addEventListener("mousedown", addSpawn);
+				}
+			};
+
+			// Select this item and allow movement
+			el.addEventListener("mousedown", function(){
+				document.getElementById("spawn").removeChild(document.getElementById("spawn_point"));
+				document.getElementById("grid").addEventListener("mouseenter", spawnSnap);
+			});
+		}
+	});
+
+
+	/* The following functions, while initially included in the component,
+	   are now included separately because having 500+ event listeners was,
+	   unsurprisingly, quite inefficient. */
+
+	// Finalizes wall within the grid
+	let addWall = function(event){
+		if (typeof event.button != "undefined")
+		{
+			if (event.button == 0)
+			{
+				if (document.getElementById(unique_id) != null)
+				{
+					document.getElementById(unique_id).classList.remove("temp");
+					document.getElementById(unique_id).setAttribute("click-menu", "");
+
+					// We sound the alarm to save
+					document.dispatchEvent(EVENTS.exhibit_updated);
+				}
+			}
+			document.removeEventListener("mousedown", addWall);
+		}
+	};
+
+	// Snaps walls to grid when adding
+	let wallSnap = function(e){
+		let placement = SNAP.wall(e.detail.intersection);
+		if (!$(".temp[position='" + placement.position.string + "'").length)
+		{
+			unique_id = "wall_" + generate_shortid();
+			
+			$("#walls").append('<a-box color="#d8d8d8" position="' + placement.position.string + '" scale="1.1 .1 ' + WALL_HEIGHT + '" rotation="' + placement.rotation.string + '" class="temp wall" id="' + unique_id + '"></a-box>');
+			
+			// When user clicks, we finalize the wall segment by removing the temp class
+			document.addEventListener("mousedown", addWall);
+		}
+	};
+
+	// Remove wall, as by a right-click
+	let removeWall = function(event){
+		// If this event has the button identification information
+		if (typeof event.button != "undefined")
+		{
+			// If the button is a right click
+			if (event.button == 2)
+			{
+				// Get the element, remove from DOM if it's still there (mousedown often calls multiple times, so only want to do it once)
+				let item = document.getElementById(unique_id);
+				if (item != null && unique_id.indexOf("wall_") > -1)
+				{
+					item.parentNode.removeChild(item);
+					
+					// We sound the alarm to save
+					document.dispatchEvent(EVENTS.exhibit_updated);
+				}
+			}
+		}
+		// If no button identification info, then it's an A-Frame event and has the relevant element -- we need that
+		else
+		{
+			// If the ID is indeed present, we store it in the unique_id variable for use in the previous condition later
+			if (typeof event.srcElement.id != "undefined")
+			{
+				if (event.srcElement.id.indexOf("wall_") > -1)
+					unique_id = event.srcElement.id;
+			}
+		}
+	};
+
+	// When the wall tool is turned on
+	document.addEventListener("wall_tool_on", function(){
+		$("#wall-toggle").data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
+
+		// This is the source of the freeze - 572 different event listeners are being added
+		document.getElementById("grid").addEventListener("mouseenter", wallSnap);
+		document.addEventListener("mousedown", removeWall);
+		document.dispatchEvent(EVENTS.floor_tool_off);
+
+		// Disable toolbar context menus when clicking on objects
+		CONTEXT_ENABLED = false;
+	});
+
+	// When the wall tool is turned off
+	document.addEventListener("wall_tool_off", function(){
+		$("#wall-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
+
+		document.getElementById("grid").removeEventListener("mouseenter", wallSnap);
+		document.removeEventListener("mousedown", removeWall);
+
+		CONTEXT_ENABLED = true;
+	});
+
+
+	// Finalize adding floor
+	let addFloor = function(event){
+		if (typeof event.button != "undefined")
+		{
+			if (event.button == 0)
+			{
+				// need something separate for ceiling finalization
+				if (document.getElementById(unique_id) != null)
+				{
+					document.getElementById(unique_id).classList.remove("temp");
+					document.getElementById(unique_id).setAttribute("click-menu", "");
+
+					// We sound the alarm to save
+					document.dispatchEvent(EVENTS.exhibit_updated);
+				}
+			}
+			document.removeEventListener("mousedown", addFloor);
+		}
+	};
+
+	// Remove floor function
+	let removeFloor = function(event){
+		// If this event has the button identification information
+		if (typeof event.button != "undefined")
+		{
+			// If the button is a right click
+			if (event.button == 2)
+			{
+				// Get the element, remove from DOM if it's still there (mousedown often calls multiple times, so only want to do it once)
+				let item = document.getElementById(unique_id);
+				if (item != null)
+				{
+					item.parentNode.removeChild(item);
+					
+					// We sound the alarm to save
+					document.dispatchEvent(EVENTS.exhibit_updated);
+				}
+			}
+		}
+		// If no button identification info, then it's an A-Frame event and has the relevant element -- we need that
+		else
+		{
+			// If the ID is indeed present, we store it in the unique_id variable for use in the previous condition later
+			if (typeof event.srcElement.id != "undefined")
+			{
+				if (event.srcElement.id.indexOf("floor_") > -1)
+					unique_id = event.srcElement.id;
+			}
+		}
+	};
+
+	// Grid space floor snap
+	let floorSnap = function(e){
+		let placement = SNAP.space(e.detail.intersection, FLOOR_HEIGHT);
+		if (!$(".temp[position='" + placement.position.string + "'").length)
+		{
+			unique_id = "floor_" + generate_shortid();
+			
+			$("#floors").append('<a-box src="#floor-space" position="' + placement.position.string + '" scale="1 ' + FLOOR_HEIGHT + ' 1" rotation="0 0 0" class="temp floor" id="' + unique_id + '" grid-interactive></a-box>');
+			
+			// When user clicks, we finalize the floor segment by removing the temp class
+			document.addEventListener("mousedown", addFloor);
+		}
+	};
+
+	document.addEventListener("floor_tool_on", function(){
+		$("#floor-toggle").data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
+
+		document.getElementById("grid").addEventListener("mouseenter", floorSnap);
+		document.addEventListener("mousedown", removeFloor);
+		document.dispatchEvent(EVENTS.wall_tool_off);
+
+		// Disable toolbar context menus when clicking on objects
+		CONTEXT_ENABLED = false;
+	});
+	document.addEventListener("floor_tool_off", function(){
+		$("#floor-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
+
+		document.getElementById("grid").removeEventListener("mouseenter", floorSnap);
+		document.removeEventListener("mousedown", removeFloor);
+
+		CONTEXT_ENABLED = true;
 	});
 })();

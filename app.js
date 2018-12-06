@@ -211,12 +211,57 @@ let upload_file = function(req, res){
 		});
 	}
 	else
-	{
-		console.log(req.file)
 		server.handleError(req, res, "FORM_INVALID");
-	}
 };
 app.post("/upload", login_required, upload.single("media_upload_file"), upload_file);
+
+// Update file meta
+let update_file = function(req, res){
+	let required = ["gen_id", "name", "description"];
+	if (common.validateForm(req.body, required))
+	{
+		let sql = "UPDATE files SET name=?, description=? WHERE gen_id=?";
+		let inserts = [req.body.name, req.body.description, req.body.gen_id];
+		sql = mysql.format(sql, inserts);
+
+		con.query(sql, function (error, result) {
+			if (error)
+				throw error;
+				
+			if (typeof req.query.ajax != "undefined")
+				res.send("success");
+			else
+				res.redirect("/");
+		});
+	}
+	else
+		server.handleError(req, res, "FORM_INVALID");
+};
+app.post("/file/update", login_required, update_file);
+
+// Delete file
+let delete_file = function(req, res){
+	let required = ["gen_id"];
+	if (common.validateForm(req.body, required))
+	{
+		let sql = "UPDATE files SET deleted=1 WHERE gen_id=? AND owner_id=?";
+		let inserts = [req.body.gen_id, req.session.user.id];
+		sql = mysql.format(sql, inserts);
+
+		con.query(sql, function (error, result) {
+			if (error)
+				throw error;
+				
+			if (typeof req.query.ajax != "undefined")
+				res.send("success");
+			else
+				res.redirect("/");
+		});
+	}
+	else
+		server.handleError(req, res, "FORM_INVALID");
+};
+app.post("/file/delete", login_required, delete_file);
 
 // Serve files
 app.get("/file/:thumb?/:file", function(req, res){
@@ -338,17 +383,17 @@ app.get("/client/css/:css", function(req, res){
 
 // Render error page
 app.get("/error/:error", function(req, res){
-	return res.render("error.html", {session: req.session, error: server.errors[req.params.error]});
+	res.render("error.html", {session: req.session, error: server.errors[req.params.error]});
 });
 
 // Render the splash homepage, should always be GET
 app.get("/", function(req, res){
 	if (typeof req.session.user == "undefined")
-		return res.render("index.html", {session: req.session});
+		res.render("index.html", {session: req.session});
 	else
 	{
 		server.getUserExhibits(con, mysql, req.session.user.id, function(exhibits){
-			return res.render("dashboard.html", {session: req.session, exhibits: exhibits});
+			res.render("dashboard.html", {session: req.session, exhibits: exhibits});
 		});
 	}
 });
@@ -356,9 +401,9 @@ app.get("/", function(req, res){
 // GET to /login
 app.get("/login", function(req, res){
 	if (typeof req.session.user == "undefined")
-		return res.render("login.html");
+		res.render("login.html");
 	else
-		return res.redirect("/");
+		res.redirect("/");
 });
 
 // POST to /login
@@ -416,7 +461,7 @@ app.get("/logout", logout);
 
 // GET to /register
 app.get("/register", function(req, res){
-	return res.render("register.html");
+	res.render("register.html");
 });
 
 // POST to /register
@@ -583,8 +628,8 @@ let update = function(req, res){
 		const required = ["title", "description"];
 		if (common.validateForm(req.body, required))
 		{
-			let sql = "UPDATE exhibits SET title=?, description=? WHERE gen_id=?";
-			let inserts = [req.body.title, req.body.description, req.params.id];
+			let sql = "UPDATE exhibits SET title=?, description=? WHERE gen_id=? AND owner_id=?";
+			let inserts = [req.body.title, req.body.description, req.params.id, req.session.user.id];
 			sql = mysql.format(sql, inserts);
 
 			con.query(sql, function (error) {
@@ -619,7 +664,7 @@ let update = function(req, res){
 	else
 		server.handleError(req, res, "FORM_INVALID");
 };
-app.post("/update/:id", update);
+app.post("/update/:id", login_required, update);
 
 // Listen on port 3000
 app.listen(PORT);

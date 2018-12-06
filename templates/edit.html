@@ -109,6 +109,7 @@
 					</button>
 				</div>
 				<div class="modal-body">
+					<div class="alert alert-warning" role="alert" v-if="alert.length > 0"><% alert %></div>
 					<div class="container-fluid">
 						<div class="row" v-if="media.length < 1">
 							<div class="col-md">
@@ -126,10 +127,15 @@
 						
 						<div class="row mt-3" v-if="media.length > 0" v-for="n in rows">
 							<div class="col-md-3" v-for="file in show[n - 1]">
-								<div class="card" v-on:click="select(file.gen_id)">
-									<img class="card-img-top" v-bind:src="'/file/thumbnail/' + file.gen_id" v-bind:alt="file.description" v-bind:title="file.description">
-									<div class="card-footer">
+								<div class="card">
+									<img class="card-img-top" v-bind:src="'/file/thumbnail/' + file.gen_id" v-bind:alt="file.description" v-bind:title="file.description" v-on:click="select(file.gen_id)">
+									<div class="card-body" v-on:click="select(file.gen_id)">
 										<% file.name %>
+									</div>
+									<div class="card-footer">
+										<button class="btn btn-link p-0" v-on:click="edit(file.gen_id, file.name, file.description)">Edit</button>
+										|
+										<button class="btn btn-link p-0" v-on:click="delete_file(file.gen_id)">Delete</button>
 									</div>
 								</div>
 							</div>
@@ -182,6 +188,41 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-secondary" v-on:click="mode = 'list'">Close uploader</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal-content" v-if="mode == 'edit'">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel">Media Editor</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="alert alert-warning" role="alert" v-if="alert.length > 0"><% alert %></div>
+					<div class="container-fluid">
+						<form name="media_editor" action="/file/update" method="POST" id="media_editor" v-on:submit="update_file">
+							<div class="form-row">
+								<div class="col form-group">
+									<label for="file_name">Name</label>
+									<input type="text" class="form-control" name="file_name" id="file_name" placeholder="File name" v-bind:value="this.selected_file.description">
+								</div>
+								<div class="col form-group">
+									<label for="file_description">Description</label>
+									<input type="text" class="form-control" name="file_description" id="file_description" placeholder="File description" v-bind:value="this.selected_file.description">
+								</div>
+							</div>
+							<div class="form-group">
+								<img v-bind:src="'/file/thumbnail/' + this.selected" v-bind:alt="this.selected">
+							</div>
+							<div class="form-group">
+								<input type="submit" class="btn btn-primary" value="Update">
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" v-on:click="mode = 'list'">Close editor</button>
 					</div>
 				</div>
 			</div>

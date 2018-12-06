@@ -66,6 +66,7 @@
 			rows: 0,
 			mode: "list",
 			selected: 0,
+			selected_file: {name: "", description: ""},
 			alert: ""
 		},
 		methods: {
@@ -138,6 +139,61 @@
 				}
 				else
 					vuer.alert = "The input provided was invalid. Make sure you have followed the instructions for each field.";
+			},
+			edit: function(id, name, description){
+				this.selected = id;
+				this.mode = "edit";
+				this.selected_file.name = name;
+				this.selected_file.description = description;
+			},
+			update_file: function(e){
+				e.preventDefault();
+
+				let vuer = this;
+				let data = {
+					"gen_id": this.selected,
+					"name": document.getElementById("file_name").value,
+					"description": document.getElementById("file_description").value
+				};
+				let required = ["gen_id", "name", "description"];
+
+				if (validateForm(data, required))
+				{
+					// If update works
+					let success = function(){
+						vuer.alert = "Updated media meta.";
+					};
+
+					// If update doesn't work
+					let error = function(jqXHR){
+						vuer.alert = jqXHR.responseText;
+					};
+
+					$.post("/file/update?ajax=true", data, success).fail(error);
+				}
+			},
+			delete_file: function(id){
+				let vuer = this;
+				let data = {
+					"gen_id": id
+				};
+				let required = ["gen_id"];
+
+				if (validateForm(data, required))
+				{
+					// If delete works
+					let success = function(){
+						vuer.alert = "Deleted media file.";
+						list_media();
+					};
+
+					// If delete doesn't work
+					let error = function(jqXHR){
+						vuer.alert = jqXHR.responseText;
+					};
+
+					$.post("/file/delete?ajax=true", data, success).fail(error);
+				}
 			}
 		}
 	});
@@ -271,8 +327,10 @@
 		};
 
 		// If save doesn't work
-		let error = function(jqXHR, textStatus, errorThrown){
-			if (jqXHR.status == 400)
+		let error = function(jqXHR){
+			if (jqXHR.status == 403)
+				window.location = jqXHR.responseText;
+			else
 				$("#save_status").text("Not saved.");
 		};
 
