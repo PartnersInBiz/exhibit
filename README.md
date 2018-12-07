@@ -76,6 +76,12 @@ When the wall and floor tools are selected, you can right-click any wall or floo
 
 To delete anything in the exhibit (including floors and walls), make sure you're not in any other tools (the buttons on the bottom toolbar are toggle buttons, so just click any blue buttons) and then left-click on any item within your exhibit. A menu will appear on the left. Click delete.
 
+To make the menu disappear (in case you accidentally click an object), just left-click anywhere in the grid that isn't covered with a floor.
+
+#### Creating a spawn point
+
+This is very important! To specify users' starting position when they load the exhibit, click the red box (by default, it's at the corner of the grid when you create a new exhibit) and move your mouse. Left-click to place the spawn point. Users will start at that position when they load the exhibit.
+
 #### Saving the exhibit
 
 Your work is automatically saved whenever you make a change.
@@ -87,15 +93,33 @@ For Exhibitor to work on your server, you will need a MySQL database and a user 
 1. Open the command-line interface of your computer (or server).
 2. Create a directory in which your copy of exhibitor will reside. For example, `mkdir exhibitor`.
 3. Change directory to the project directory you just created, as with `cd exhibitor`.
-4. Download the project code into this directory, as with `wget https://serve.josharchibald.com/cs50/exhibitor.zip`.
-5. Unzip the project code, as with `unzip exhibitor.zip`.
-6. Remove the ZIP file, as with `rm exhibitor.zip`.
-7. In the project directory, run the command `npm install --production`.
-8. Edit the file `secure/secure.js`, editing the object `db_settings` within `module.exports`. Edit the object to include the information required to authenticate into your MySQL database -- `host`, `user`, `password`, and `database` should each have a value.
-9. To setup the database, run the command `mysql -u [username] -p [database_name] < setup.sql`, filling in your username and database name and typing your password when prompted. This SQL script will configure the necessary tables.
-10. To run the server, run the command `node app.js`. If all went well, you'll see three lines of feedback:
+4. Download the project code into this directory.
+5. In the project directory, run the command `npm install --production`.
+6. Edit the file `secure/secure.js`, editing the object `db_settings` within `module.exports`. Edit the object to include the information required to authenticate into your MySQL database -- `host`, `user`, `password`, and `database` should each have a value.
+7. To setup the database, run the command `mysql -u [username] -p [database_name] < setup.sql`, filling in your username and database name and typing your password when prompted. This SQL script will configure the necessary tables.
+8. One more dependency: FFmpeg. Installation info is on [their website](https://www.ffmpeg.org/).
+9. To run the server, run the command `node app.js`. If all went well, you'll see three lines of feedback:
 ```
 Now listening on port 3000.
 Hit CTRL-C to exit server application.
 Connected to database.
 ```
+
+### Examining data
+
+If you want to see the database structure, I recommend [MySQL Workbench](https://www.mysql.com/products/workbench/). Connect to your database with that, if you've set up your own database.
+
+If you want to examine the contents of my own server, log on via SSH using the following credentials:
+- Host: `josharchibald.com:7822`
+- Username: `cs50`
+- Password: `Harvard1636!`
+
+If you want to examine the contents of my database, log on using software like MySQL Workbench and the following credentials:
+- Host: `josharchibald.com`
+- Username: `cs50`
+- Password: `Harvard1636!`
+- Database: `exhibitor`
+
+In both cases, the CS50 user has complete viewing privileges.
+
+Alternatively, just go to https://exhibit.josharchibald.com and use the software in its production version online!

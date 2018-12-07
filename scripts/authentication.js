@@ -1,4 +1,5 @@
 (() => {
+	// Check login form exists
 	if (typeof document.getElementsByName("login")[0] != "undefined")
 	{
 		document.getElementsByName("login")[0].addEventListener("submit", (e) => {
@@ -31,6 +32,7 @@
 		});
 	}
 
+	// Check registration form exists
 	if (typeof document.getElementsByName("register")[0] != "undefined")
 	{
 		document.getElementsByName("register")[0].addEventListener("submit", (e) => {
@@ -50,6 +52,7 @@
 			const required = ["first_name", "last_name", "email", "password"];
 			if (validateForm(data, required))
 			{
+				// Handle responses
 				let always = (xhr) => {
 					if (xhr.status == 301)
 						window.location = xhr.responseText;
@@ -60,9 +63,7 @@
 				$.post("/register", data).always(always);
 			}
 			else
-			{
 				$(".alert").html("The input provided was invalid. Make sure you have followed the instructions for each field.").removeClass("d-none");
-			}
 		});
 	}
 })();

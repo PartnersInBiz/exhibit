@@ -1,7 +1,9 @@
 (() => {
+	// Generate a grid systematically!
 	const GRID = $("#grid");
 	const CAMERA = $("#camera");
 	
+	// Nested loops
 	for (let x = 0; x < SIZE; x++)
 	{
 		for (let y = 0; y < SIZE; y++)

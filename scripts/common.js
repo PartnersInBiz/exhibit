@@ -53,6 +53,7 @@ String.prototype.isNumber = function() {
 String.prototype.breakdown = function() {
 	var target = this;
 
+	// We're literally iterating characters and counting types
 	let breakdown = {upper: 0, lower: 0, number: 0, symbol: 0};
 	for (character of target)
 	{
@@ -72,6 +73,7 @@ String.prototype.breakdown = function() {
 String.prototype.validatePassword = function() {
 	var target = this;
 
+	// Must be 6 characters or longer
 	if (target.length < 6)
 		return false;
 	else
@@ -86,15 +88,19 @@ String.prototype.validatePassword = function() {
 	return true;
 };
 
+// Validates forms given inputs and required fields
 let validateForm = function(body, required) {
 	for (require of required)
 	{
 		if (body.hasOwnProperty(require))
 		{
+			// We assume '' is not an answer, nor is '   '
 			if (body[require].removeSpaces() == '')
 				return false;
+			// Check an email regex
 			else if (require == "email" && !body[require].validateEmail())
 				return false;
+			// Check the password requirements
 			else if (require == "password" && !body[require].validatePassword())
 				return false;
 		}
@@ -113,6 +119,7 @@ function is_server() {
 (() => {
 	if (is_server())
 	{
+		// This is just a Node.js thing
 		module.exports = {
 			validateForm: validateForm
 		}

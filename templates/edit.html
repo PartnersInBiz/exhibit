@@ -14,7 +14,7 @@
 
 {% block content %}
 	<a-scene cursor="rayOrigin: mouse" id="scene" embedded>
-		<a-sky color="#f8f8f8"></a-sky>
+		<a-sky color="#d2d2d2"></a-sky>
 		<a-assets>
 			<img id="grid-space" src="/client/textures/grid-space.png" class="default_asset">
 			<img id="grid-space-green" src="/client/textures/grid-space-green.png" class="default_asset">
@@ -33,13 +33,9 @@
 		{{ exhibit.data.content|safe }}
 	</a-scene>
 
-	<ul class="list-group w-25 d-block position-absolute invisible" id="item_tools" data-item-id="">
+	<ul class="list-group w-25 d-block position-absolute invisible" id="item_tools" data-item_id="">
 		<li class="list-group-item bg-secondary text-white">Options</li>
-		<li class="list-group-item _2d_only" id="_2d_wall_height">
-			<label for="_2d_wall_height_input">Height on wall:</label>
-			<input type="text" name="_2d_wall_height" id="_2d_wall_height_input" class="form-control" value="1.6">
-		</li>
-		<li class="list-group-item" id="delete-item">Delete</li>
+		<li class="list-group-item" id="delete_item">Delete</li>
 	</ul>
 
 	<nav class="toolbar container-fluid">

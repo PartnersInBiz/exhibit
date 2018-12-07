@@ -1,4 +1,6 @@
+// This class allows grip snapping to happen!
 class GridSnap {
+	// For wall snapping
 	wall(intersection, height=WALL_HEIGHT, media=false) {
 		let x = intersection.point.x;
 		let z = intersection.point.z;
@@ -18,17 +20,20 @@ class GridSnap {
 		else
 			zRound = 0;
 
-		// compare thing
+		// Comparison
 		let differenceX = Math.abs(x - xFloor - xRound);
 		let differenceZ = Math.abs(z - zFloor - zRound);
 
 		let add = 0;
+
+		// We add a little if it's media so it doesn't go right in the middle of a wall
 		if (media)
 			add = SIDE_MULTIPLIER * (WALL_WIDTH / 2 + .01);
 
+		// Align to X axis
 		if (differenceX < differenceZ)
 		{
-			// Make life easier
+			// Make life easier for generating meta
 			let rot = {
 				x: (media) ? 0 : 90,
 				y: (SIDE_MULTIPLIER == 1) ? 90 : 270,
@@ -52,6 +57,7 @@ class GridSnap {
 			}
 			return meta;
 		}
+		// Align to Z axis
 		else if (differenceX > differenceZ)
 		{
 			// Use these multiple times
@@ -80,9 +86,13 @@ class GridSnap {
 		}
 	}
 
+	// Grid-space snapping
 	space(intersection, height=1) {
+		// Get the intersection point
 		let stringForm = intersection.object.el.attributes.position.value;
 		let parts = stringForm.split(" ");
+
+		// Figure out where we're going to put the object based on that
 		let meta = {
 			position: {
 				x: parseInt(parts[0]),
@@ -101,54 +111,58 @@ class GridSnap {
 	}
 }
 
+// The main code
 (() => {
+	// Initialize SNAP, we use it a lot
 	const SNAP = new GridSnap();
 	let unique_id;
 
+	// The grid-interactive component makes the grid, interactive. Mind-blowing.
 	AFRAME.registerComponent('grid-interactive', {
 		schema: {
 			color: {default: '#00FF08'}
 		},
 	
 		init: function() {
+			// Some variables
 			let data = this.data;
 			let el = this.el;
 			let defaultColor = el.getAttribute("material").color;
 			let object_placement = {type: '', media_id: '', width: -1, height: -1};
 
+			// Grid hover texture
 			el.addEventListener('mouseenter', function() {
-				// Grid hover color
 				if (el.classList.contains("floor"))
 					el.setAttribute("src", "#floor-space-green");
 				else
 					el.setAttribute('src', "#grid-space-green");
 			});
 	
+			// When we leave the grid space, no more hover texture :(
 			el.addEventListener('mouseleave', function (e) {
-				el.setAttribute('color', defaultColor);
+				if (typeof el.getAttribute("data-selected") == "undefined")
+					el.setAttribute('color', defaultColor);
 
 				if (el.classList.contains("floor"))
 					el.setAttribute("src", "#floor-space");
 				else
 					el.setAttribute("src", "#grid-space");
 
+				// ALSO, IMPORTANT, we remove all temporary elements, as the previews for when we're placing new walls
 				$(".temp").remove();
 			});
 
-			
-			
-
-			
-
-			/* Here we handle 2D object placement */
+			/* Here we handle 2D media placement */
 			// Finalize object location
 			let add2D = function(event){
 				if (typeof event.button != "undefined")
 				{
+					// Left click
 					if (event.button == 0)
 					{
 						if (document.getElementById(unique_id) != null)
 						{
+							// Permanent, no longer .temp
 							document.getElementById(unique_id).classList.remove("temp");
 							document.getElementById(unique_id).setAttribute("click-menu", "");
 
@@ -156,15 +170,19 @@ class GridSnap {
 							document.dispatchEvent(EVENTS.exhibit_updated);
 						}
 					}
+
+					// Cleanup
 					document.removeEventListener("mousedown", add2D);
 					document.dispatchEvent(EVENTS._2d_tool_off);
 				}
 			};
 
+			// Grid wall snap for 2D media
 			let snap2D = function(e){
-				// Grid wall snap
-				let placement = SNAP.wall(e.detail.intersection, WALL_HEIGHT, true);
+				// Get the suggested location
+				let placement = SNAP.wall(e.detail.intersection, WALL.tall, true);
 
+				// If the temp isn't already there, add it
 				if (!$(".temp[position='" + placement.position.string + "'").length)
 				{
 					unique_id = "object_" + generate_shortid();
@@ -186,22 +204,27 @@ class GridSnap {
 				}
 			};
 
+			// We first learn that we're place 2D media in the scene
 			document.addEventListener("2d_tool_on", function(evt){
 				$("#media-toggle").data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
 
+				// Figure out stuff about the object
 				object_placement.type = evt.detail.type;
 				object_placement.media_id = evt.detail.media_id;
 				object_placement.width = $("#plane_width").val();
 				object_placement.height = $("#plane_height").val();
 
+				// Grid snap
 				el.addEventListener("mouseenter", snap2D);
 
+				// Turn off the other stuff so it doesn't get confusing
 				document.dispatchEvent(EVENTS.wall_tool_off);
 				document.dispatchEvent(EVENTS.floor_tool_off);
 			});
+
+			// We're done with the 2D media, so we cleanup
 			document.addEventListener("2d_tool_off", function(){
 				$("#media-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
-
 				el.removeEventListener("mouseenter", snap2D);
 			});
 		}
@@ -220,33 +243,29 @@ class GridSnap {
 					el.setAttribute("src", defaultSource);
 
 				el.setAttribute("color", defaultColor);
+				el.removeAttribute("data-original_color");
 
 				if (e.detail != "stay_open")
-					document.getElementById("item_tools").classList.add("invisible")
+					document.getElementById("item_tools").classList.add("invisible");
 				document.removeEventListener("item_click", clear_selection);
 			};
 
 			// Highlight the selected item
 			el.addEventListener("mousedown", function(e){
+				// We can indeed add the context toolbar; we're not adding a wall or something
 				if (CONTEXT_ENABLED)
 				{
-					if (el.tagName == "A-IMAGE" || el.tagName == "A-VIDEO")
+					// Not a grid space, so we can highlight it
+					if (!el.classList.contains("grid-space") && el.tagName != "A-SKY")
 					{
-						el.setAttribute("src", "#floor-space");
-						$("._2d_only").show();
-						document.getElementById("_2d_wall_height_input").value = el.object3D.position.y;
-					}
-					else
-					{
-						$("._2d_only").hide();
-					}
-					el.setAttribute("color", "#D4F4FF");
+						// Change color and store original
+						el.setAttribute("color", "#A10000");
+						el.setAttribute("data-original_color", defaultColor);
 
-					if (!el.classList.contains("grid-space"))
-					{
+						// Show the toolkit!
 						let tools = document.getElementById("item_tools")
 						tools.classList.remove("invisible");
-						tools.setAttribute("data-item-id", el.id)
+						tools.setAttribute("data-item_id", el.id)
 						
 						document.dispatchEvent(EVENTS.item_click_stay);
 					}
@@ -262,12 +281,12 @@ class GridSnap {
 	AFRAME.registerComponent("spawn-point", {
 		init: function() {
 			let el = this.el;
-			let defaultColor = el.getAttribute("material").color;
 
 			// Finalize spawn placement
 			let addSpawn = function(e){
 				if (typeof e.button != "undefined")
 				{
+					// Left click
 					if (e.button == 0)
 					{
 						if (document.getElementById("spawn_point") != null)
@@ -277,6 +296,7 @@ class GridSnap {
 
 							// Cancel the mouseover event
 							document.getElementById("grid").removeEventListener("mouseenter", spawnSnap);
+							document.getElementById("floors").removeEventListener("mouseenter", spawnSnap);
 
 							CONTEXT_ENABLED = true;
 
@@ -291,8 +311,16 @@ class GridSnap {
 			// Grid space snap
 			let spawnSnap = function(e){
 				CONTEXT_ENABLED = false;
+				let placement = SNAP.space(e.detail.intersection, HUMAN_HEIGHT * 2);
 
-				let placement = SNAP.space(e.detail.intersection, HUMAN_HEIGHT);
+				// If on a floor, need to correct for a bug that would place spawn point below the floor
+				if (e.detail.intersection.object.el.id.indexOf("floor_") > -1)
+				{
+					position = [placement.position.x + .5, HUMAN_HEIGHT, placement.position.z];
+					placement.position.string = position.join(" ");
+				}
+				
+				// Don't create duplicates!
 				if (!$(".temp[position='" + placement.position.string + "'").length)
 				{
 					$("#spawn").append('<a-box position="' + placement.position.string + '" scale=".3 .3 .3" color="#8A2000" id="spawn_point" class="temp" spawn-point></a-box>');
@@ -306,12 +334,12 @@ class GridSnap {
 			el.addEventListener("mousedown", function(){
 				document.getElementById("spawn").removeChild(document.getElementById("spawn_point"));
 				document.getElementById("grid").addEventListener("mouseenter", spawnSnap);
+				document.getElementById("floors").addEventListener("mouseenter", spawnSnap);
 			});
 		}
 	});
 
-
-	/* The following functions, while initially included in the component,
+	/* The following functions, while initially included in the grid-interactive component,
 	   are now included separately because having 500+ event listeners was,
 	   unsurprisingly, quite inefficient. */
 
@@ -319,6 +347,7 @@ class GridSnap {
 	let addWall = function(event){
 		if (typeof event.button != "undefined")
 		{
+			// Left click
 			if (event.button == 0)
 			{
 				if (document.getElementById(unique_id) != null)
@@ -336,7 +365,10 @@ class GridSnap {
 
 	// Snaps walls to grid when adding
 	let wallSnap = function(e){
+		// Get suggested location
 		let placement = SNAP.wall(e.detail.intersection);
+
+		// No duplicates!
 		if (!$(".temp[position='" + placement.position.string + "'").length)
 		{
 			unique_id = "wall_" + generate_shortid();
@@ -345,6 +377,7 @@ class GridSnap {
 			
 			// When user clicks, we finalize the wall segment by removing the temp class
 			document.addEventListener("mousedown", addWall);
+			CONTEXT_ENABLED = false;
 		}
 	};
 
@@ -385,6 +418,7 @@ class GridSnap {
 
 		// This is the source of the freeze - 572 different event listeners are being added
 		document.getElementById("grid").addEventListener("mouseenter", wallSnap);
+		document.getElementById("floors").addEventListener("mouseenter", wallSnap);
 		document.addEventListener("mousedown", removeWall);
 		document.dispatchEvent(EVENTS.floor_tool_off);
 
@@ -392,24 +426,24 @@ class GridSnap {
 		CONTEXT_ENABLED = false;
 	});
 
-	// When the wall tool is turned off
+	// When the wall tool is turned off, we clean up
 	document.addEventListener("wall_tool_off", function(){
 		$("#wall-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
 
 		document.getElementById("grid").removeEventListener("mouseenter", wallSnap);
+		document.getElementById("floors").removeEventListener("mouseenter", wallSnap);
 		document.removeEventListener("mousedown", removeWall);
 
 		CONTEXT_ENABLED = true;
 	});
 
-
 	// Finalize adding floor
 	let addFloor = function(event){
 		if (typeof event.button != "undefined")
 		{
+			// Left click
 			if (event.button == 0)
 			{
-				// need something separate for ceiling finalization
 				if (document.getElementById(unique_id) != null)
 				{
 					document.getElementById(unique_id).classList.remove("temp");
@@ -456,7 +490,10 @@ class GridSnap {
 
 	// Grid space floor snap
 	let floorSnap = function(e){
+		// Get suggested position
 		let placement = SNAP.space(e.detail.intersection, FLOOR_HEIGHT);
+
+		// No duplicates!
 		if (!$(".temp[position='" + placement.position.string + "'").length)
 		{
 			unique_id = "floor_" + generate_shortid();
@@ -468,6 +505,7 @@ class GridSnap {
 		}
 	};
 
+	// When the floor tool is turned on
 	document.addEventListener("floor_tool_on", function(){
 		$("#floor-toggle").data("toggle", "on").removeClass("btn-secondary").addClass("btn-info");
 
@@ -478,6 +516,8 @@ class GridSnap {
 		// Disable toolbar context menus when clicking on objects
 		CONTEXT_ENABLED = false;
 	});
+	
+	// When the floor tool is turned off, we clean up
 	document.addEventListener("floor_tool_off", function(){
 		$("#floor-toggle").data("toggle", "off").removeClass("btn-info").addClass("btn-secondary");
 

@@ -1,3 +1,4 @@
+// Global constants
 const SIZE = 24;
 const HALFWIDTH = screen.width / 2;
 const HALFHEIGHT = window.innerHeight / 2;
@@ -7,13 +8,17 @@ const WALL = {
 	short: .5,
 	tall: 2.5
 };
+
+// Global variables
 let WALL_HEIGHT = WALL.tall;
 let WALL_WIDTH = .1;
 let FLOOR_HEIGHT = .01;
 let SIDE_MULTIPLIER = 1;
 let CONTEXT_ENABLED = true;
 let HUMAN_HEIGHT = 1.6;
+let ENABLE_NAVIGATE = true;
 
+// Some of the common events we may initiate
 const EVENTS = {
 	wall_tool_on: new CustomEvent("wall_tool_on"),
 	wall_tool_off: new CustomEvent("wall_tool_off"),
@@ -26,6 +31,7 @@ const EVENTS = {
 	exhibit_updated_meta: new CustomEvent("exhibit_updated", {detail: "meta"})
 };
 
+// Turn an object into a space-separated string
 function parametize(assoc)
 {
 	let string = '';
