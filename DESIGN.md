@@ -1,5 +1,9 @@
 # Exhibitor: Design Document
 
+## First, a note
+
+Many of the functions in my code are explained in greater detail in comments. What follows is a non-exhaustive list of some basic design considerations and the files used to make the user experience in Exhibitor possible.
+
 ## Choice of Backend
 
 I chose Node.js as the backend because I wanted to be able to easily add collaborative editing capabilities in the future; Node.js has an asynchronous design that allows data to be easily received and transmitted in real-time.
@@ -18,7 +22,7 @@ A-Frame is based on Three.js, which is a much lower-level 3D modeling system, an
 
 ## app.js
 
-This is the main server code. It uses the Express.js framework and Nunjucks templating engine to handle routes and render pages to users.
+This is the main server code. It uses the Express.js framework and Nunjucks templating engine to handle routes and render pages to users. There is also some logic, though some is outsourced to separate library files.
 
 ### Callback functions
 
@@ -55,6 +59,38 @@ The function detects if a field is `email` or `password` and calls the `validate
 This function determines if the code is being run on the server or client.
 
 This is used on the script's first run to determine if `module.exports` is necessary (it's needed only on the server-side, and indeed breaks browser JS).
+
+## scripts/scene-height.js
+
+This file adjusts the scene to the appropriate height given the navbars present on the front-end.
+
+## scripts/shortid.js
+
+This is not my code, but a browserified version of the shortid library. This allows me to generate short random IDs for objects on the client-side.
+
+## scripts/toolbar.js
+
+The code herein handles anything to do with the editing experience, particularly the context toolbar, the media modal, and the main toolbar at the bottom of the editing screen.
+
+## scripts/graphics/ceiling.js
+
+In view mode, this script clones the floor tiles to create a ceiling.
+
+## scripts/graphics/globals.js
+
+These are some useful global constants and variables used throughout the code of both editor and viewer.
+
+## scripts/graphics/grid-interactive.js
+
+This is a series of functions associated with making the third-person edit mode function properly on the client-side.
+
+## scripts/graphics/grid.js
+
+This is a script used in the edit mode to generate the grid that is so crucial to the editor's functioning.
+
+## scripts/graphics/navigation.js
+
+This is a series of classes and functions dedicated to making third-person navigation in the scene possible.
 
 ## secure/secure.js
 
