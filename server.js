@@ -11,7 +11,8 @@ module.exports = {
 		"FILE_UPLOAD_FAILED": "Failed to upload file.",
 		"NO_ACCESS": "Couldn't access exhibit.",
 		"SAVE_FAILED": "Couldn't save exhibit.",
-		"JS_REQUIRED": "This web app requires JavaScript to work properly."
+		"JS_REQUIRED": "This web app requires JavaScript to work properly.",
+		"READ_ONLY": "This account is read-only (you can't change anything)."
 	},
 	// Handle error by either sending a 400 message or redirecting to the error page
 	handleError: function(req, res, error){

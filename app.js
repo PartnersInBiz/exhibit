@@ -4,7 +4,7 @@ const session = require("express-session");
 const nunjucks = require("nunjucks");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcrypt"); // for Linux use bcryptjs
 const shortid = require("shortid");
 const fs = require("fs");
 const sharp = require("sharp");
@@ -72,6 +72,17 @@ let login_required = function(req, res, next) {
 	}
 	else
 		return next();
+}
+
+// Check for any sort of public demo account
+let write_protected = function(req, res, next) {
+	if (secure.public_demo_users.indexOf(req.session.user.email) == -1)
+		return next();
+	else
+	{
+		server.handleError(req, res, "READ_ONLY");
+		console.log("Prevented write protected action by demo user.");
+	}
 }
 
 // Get a list of all the images the user owns
@@ -213,7 +224,7 @@ let upload_file = function(req, res){
 	else
 		server.handleError(req, res, "FORM_INVALID");
 };
-app.post("/upload", login_required, upload.single("media_upload_file"), upload_file);
+app.post("/upload", login_required, write_protected, upload.single("media_upload_file"), upload_file);
 
 // Update file meta
 let update_file = function(req, res){
@@ -239,7 +250,7 @@ let update_file = function(req, res){
 	else
 		server.handleError(req, res, "FORM_INVALID");
 };
-app.post("/file/update", login_required, update_file);
+app.post("/file/update", login_required, write_protected, update_file);
 
 // Delete file
 let delete_file = function(req, res){
@@ -265,7 +276,7 @@ let delete_file = function(req, res){
 	else
 		server.handleError(req, res, "FORM_INVALID");
 };
-app.post("/file/delete", login_required, delete_file);
+app.post("/file/delete", login_required, write_protected, delete_file);
 
 // Serve files
 app.get("/file/:thumb?/:file", function(req, res){
@@ -457,6 +468,7 @@ let login = function(req, res){
 							id: result[0]['id'],
 							first_name: result[0]['first_name'],
 							last_name: result[0]['last_name'],
+							email: result[0]['email'],
 							display_name: result[0]['display_name'],
 							status: result[0]['status']
 						};
@@ -563,7 +575,7 @@ let new_exhibit = function(req, res){
 		});
 	});
 };
-app.get("/new", login_required, new_exhibit);
+app.get("/new", login_required, write_protected, new_exhibit);
 
 // Display the editor
 let edit = function(req, res){
@@ -656,7 +668,7 @@ let delete_exhibit = function(req, res){
 		res.redirect("/");
 	});
 };
-app.get("/delete/:id", login_required, delete_exhibit);
+app.get("/delete/:id", login_required, write_protected, delete_exhibit);
 
 // No such thing as /delete, must have an exhibit ID
 app.get("/delete", function(req, res){
@@ -712,7 +724,7 @@ let update = function(req, res){
 	else
 		server.handleError(req, res, "FORM_INVALID");
 };
-app.post("/update/:id", login_required, update);
+app.post("/update/:id", login_required, write_protected, update);
 
 // Listen on port 3000
 app.listen(PORT);

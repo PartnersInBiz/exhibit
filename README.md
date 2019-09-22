@@ -20,7 +20,7 @@ On the homepage at https://exhibit.josharchibald.com there is a link to the Regi
 
 If you're not logged in, there's a link to the Login page at the top right of the navbar. Fill out the form to log in using your credentials, if they exist already.
 
-For CS50 testing purposes, you may find it helpful to login to a project with a pre-existing sample exhibit. Use the email `jharvard@josharchibald.com` and password `Crimson1636!` to use a sample exhibit.
+For testing purposes, you may find it helpful to login to a project with pre-existing sample exhibits. Use the email `jharvard@josharchibald.com` and password `Crimson1636!` to use a sample exhibit. Using these credentials, you will be able to view a sample exhibit in the regular, public view mode and to play with the editor interface (though none of your changes will be saved). Register for an account to create your own exhibits.
 
 ### Dashboard
 
@@ -95,7 +95,7 @@ For Exhibitor to work on your server, you will need a MySQL database and a user 
 3. Change directory to the project directory you just created, as with `cd exhibitor`.
 4. Download the project code into this directory.
 5. In the project directory, run the command `npm install --production`.
-6. Edit the file `secure/secure.js`, editing the object `db_settings` within `module.exports`. Edit the object to include the information required to authenticate into your MySQL database -- `host`, `user`, `password`, and `database` should each have a value.
+6. Edit the file `secure-sample/secure.js`, editing the object `db_settings` within `module.exports`. Edit the object to include the information required to authenticate into your MySQL database -- `host`, `user`, `password`, and `database` should each have a value. Then rename the `secure-sample` directory to `secure`.
 7. To setup the database, run the command `mysql -u [username] -p [database_name] < setup.sql`, filling in your username and database name and typing your password when prompted. This SQL script will configure the necessary tables.
 8. One more dependency: FFmpeg. Installation info is on [their website](https://www.ffmpeg.org/).
 9. To run the server, run the command `node app.js`. If all went well, you'll see three lines of feedback:
@@ -104,22 +104,3 @@ Now listening on port 3000.
 Hit CTRL-C to exit server application.
 Connected to database.
 ```
-
-### Examining data
-
-If you want to see the database structure, I recommend [MySQL Workbench](https://www.mysql.com/products/workbench/). Connect to your database with that, if you've set up your own database.
-
-If you want to examine the contents of my own server, log on via SSH using the following credentials:
-- Host: `josharchibald.com:7822`
-- Username: `cs50`
-- Password: `Harvard1636!`
-
-If you want to examine the contents of my database, log on using software like MySQL Workbench and the following credentials:
-- Host: `josharchibald.com`
-- Username: `cs50`
-- Password: `Harvard1636!`
-- Database: `exhibitor`
-
-In both cases, the CS50 user has complete viewing privileges.
-
-Alternatively, just go to https://exhibit.josharchibald.com and use the software in its production version online!

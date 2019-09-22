@@ -1,4 +1,6 @@
+exhibits/
 node_modules/
 secure/
 uploads/
-exhibits/
+local-backup/
+package-lock.json
